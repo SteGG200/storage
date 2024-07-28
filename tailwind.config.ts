@@ -8,7 +8,13 @@ const config: Config = {
 	],
 	theme: {
 		extend: {
-			
+			colors: {
+				'customWhite': '#E3E3E3',
+				'customBlack': '#131314'
+			},
+			content: {
+				'space': '\"\u2800\"'
+			}
 		}
 	},
 	plugins: []
