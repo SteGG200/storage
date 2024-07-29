@@ -3,7 +3,7 @@ type ItemType = "file" | "folder"
 interface IItem {
 	type: ItemType
 	name: string
-	size: number
+	size: string
 	key: string
 }
 
