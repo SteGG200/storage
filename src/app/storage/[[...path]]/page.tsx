@@ -1,3 +1,4 @@
+import MainContent from "@/components/folder_content/MainContent"
 import PathShowAndSearch from "@/components/top_bar/PathShowAndSearch"
 import TopBar from "@/components/top_bar/TopBar"
 
@@ -8,15 +9,28 @@ interface IParams {
 }
 
 export default function Storage({ params }: IParams){
+	const items : IItem[] = [
+		{
+			type: "folder",
+      name: "flkajsdlfjasdlfjalsdjflakfkalsjdfladjfaldfjalsdkfjalsdjfladkjfalsdfajsdlfjasdlkfjaskdflaskdjffasdfka",
+      size: 0,
+			key: "0"
+		},
+		{
+			type: "file",
+      name: "File 1.txt",
+      size: 1024,
+			key: "1"
+		}
+	]
+
 	return (
-		<main className="h-dvh bg-customBlack p-4 max-md:p-2">
+		<main className="h-dvh bg-customBlack p-4 max-md:p-2 space-y-4">
 			<TopBar>
 				<PathShowAndSearch directory={params.path ?? []}/>
 			</TopBar>
 
-			Here is your storage on directory: Home{params.path?.map((folder) => {
-				return `/${folder}`
-			})}
+			<MainContent items={items}/>
 		</main>
 	)
 }
