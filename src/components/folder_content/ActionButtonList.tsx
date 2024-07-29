@@ -11,7 +11,7 @@ interface IActionButtonListProps {
 
 const ActionButtonList: React.FC<IActionButtonListProps> = ({accessible}) => {
 	return (
-		<div className="w-full">
+		<div className="w-full flex justify-end">
 			<div className="max-md:hidden">
 				<div className="hidden group-hover:flex justify-end space-x-4">
 					<Tooltip showArrow delay={0} closeDelay={100} content="Download">
@@ -31,10 +31,10 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({accessible}) => {
 					</Tooltip>
 				</div>
 			</div>
-			<div className="md:hidden flex justify-end">
+			<div className="flex justify-end">
 				<Dropdown>
 					<DropdownTrigger>
-						<button className="p-2 rounded-full">
+						<button className="hover:bg-customDarkGray p-2 rounded-full">
 							<VerticalDotsIcon className="size-[20px] stroke-customWhite"/>
 						</button>
 					</DropdownTrigger>
