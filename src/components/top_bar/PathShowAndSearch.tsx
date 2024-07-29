@@ -38,7 +38,7 @@ const DirectoryList : React.FC<IDirectoryListProps> = ({ directory, currentFolde
 	let tempPath = ''
 
 	return (
-		<div className="w-fit min-w-full h-full flex space-x-0.5 absolute right-0 p-0.5">
+		<div className="w-fit min-w-full h-full flex items-center space-x-0.5 absolute right-0 p-0.5">
 			<FolderLink isCurrentFolder={!currentFolder} href="/storage">
 				<svg xmlns="http://www.w3.org/2000/svg" className="size-[20px] stroke-customGray group-hover:stroke-customWhite mr-1" viewBox="0 0 24 24" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
 					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
