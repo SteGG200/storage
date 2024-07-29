@@ -20,7 +20,7 @@ const NavBotton = () => {
 
 	return (
 		<div className="max-md:hidden space-x-2">
-			<button className="group enabled:hover:bg-slate-800 p-1 rounded-md outline-none" disabled onClick={goBack}>
+			<button className="group enabled:hover:bg-slate-800 p-1 rounded-md outline-none" onClick={goBack}>
 				<svg xmlns="http://www.w3.org/2000/svg" className="size-[37px] stroke-customWhite group-disabled:stroke-customDarkGray" viewBox="0 0 24 24" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
 					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
 					<path d="M20 15h-8v3.586a1 1 0 0 1 -1.707 .707l-6.586 -6.586a1 1 0 0 1 0 -1.414l6.586 -6.586a1 1 0 0 1 1.707 .707v3.586h8a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1z" />

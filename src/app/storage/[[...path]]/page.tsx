@@ -1,5 +1,5 @@
-import PathShowAndSearch from "@/components/TopBar/PathShowAndSearch"
-import TopBar from "@/components/TopBar/TopBar"
+import PathShowAndSearch from "@/components/top_bar/PathShowAndSearch"
+import TopBar from "@/components/top_bar/TopBar"
 
 interface IParams {
 	params: {
