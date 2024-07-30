@@ -14,7 +14,7 @@ const getFileExtension = (filename: string) => {
 
 export async function POST(request: Request, { params }: IParams){
 	const data = await request.formData()
-	const path = `${process.cwd()}/${process.env.UPLOAD_PATH}/${params.path?.join('/') ?? ""}`
+	const path = `${process.cwd()}/${process.env.UPLOAD_PATH}/${decodeURI(params.path?.join('/') ?? "")}`
 
 	const name = data.get('name')
 	const file = data.get('file')

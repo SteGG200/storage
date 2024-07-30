@@ -81,7 +81,7 @@ const MainContent : React.FC<IMainContentProps> = ({ path }) => {
 				{(item) => (
 					<TableRow className="group md:h-[52px]" key={item.key} onDoubleClick={() => {
 						if(item.type === "folder"){
-							router.push(`${pathname}/${item.name}`)
+							router.push(`${pathname}/${encodeURI(item.name)}`)
 						}
 					}}>
 						{(columnKey) => {

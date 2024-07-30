@@ -14,32 +14,28 @@ interface IDirectoryProps {
 	directory: string[]
 }
 
-interface IDirectoryListProps extends IDirectoryProps {
-	currentFolder: string
-}
-
 const FolderLink : React.FC<IFolderLinkProps> = ({ isCurrentFolder, children, href }) => {
 	if(isCurrentFolder){
 		return (
-			<div className="flex items-center px-2">
+			<div className="flex items-center px-2 whitespace-nowrap">
 				{children}
 			</div>
 		)
 	}
 
 	return (
-		<Link className="flex items-center hover:bg-[#777777] text-customGray hover:text-customWhite group rounded mr-0.5 px-2" href={href}>
+		<Link className="flex items-center hover:bg-[#777777] text-customGray hover:text-customWhite whitespace-nowrap group rounded mr-0.5 px-2" href={href}>
 			{children}
 		</Link>
 	)
 }
 
-const DirectoryList : React.FC<IDirectoryListProps> = ({ directory, currentFolder }) =>{
+const DirectoryList : React.FC<IDirectoryProps> = ({ directory }) =>{
 	let tempPath = ''
 
 	return (
 		<div className="w-fit min-w-full h-full flex items-center space-x-0.5 absolute right-0 p-0.5">
-			<FolderLink isCurrentFolder={!currentFolder} href="/storage">
+			<FolderLink isCurrentFolder={directory.length == 0} href="/storage">
 				<svg xmlns="http://www.w3.org/2000/svg" className="size-[20px] stroke-customGray group-hover:stroke-customWhite mr-1" viewBox="0 0 24 24" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
 					<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
 					<path d="M5 12l-2 0l9 -9l9 9l-2 0" />
@@ -55,8 +51,8 @@ const DirectoryList : React.FC<IDirectoryListProps> = ({ directory, currentFolde
 					return (
 						<React.Fragment key={index}>
 							/
-							<FolderLink isCurrentFolder={folder === currentFolder} href={`/storage/${tempPath}`}>
-								{folder}
+							<FolderLink isCurrentFolder={index === (directory.length - 1)} href={`/storage/${tempPath}`}>
+								{decodeURI(folder)}
 							</FolderLink>
 						</React.Fragment>
 					)
@@ -102,7 +98,7 @@ const PathShowAndSearch : React.FC<IDirectoryProps> = ({ directory }) => {
 				<input className="w-full h-full bg-customDarkGray bg-uploadIcon bg-no-repeat bg-[5px_5px] rounded-md outline-none pl-9" type="text" placeholder="Search..." autoFocus />
 				:
 				<div className="w-full h-full bg-customDarkGray rounded-md overflow-hidden relative">
-					<DirectoryList directory={directory} currentFolder={directory[directory.length - 1]}/>
+					<DirectoryList directory={directory}/>
 				</div>
 			}
 			<button className={`${isSearching ? "bg-slate-700" : "bg-inherit md:hover:bg-slate-800"} p-1 rounded-md outline-none`} onClick={() => setIsSearching(!isSearching)}>
