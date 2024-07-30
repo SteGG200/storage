@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function Home() {
 	return (
 		<main className="h-dvh bg-customBlack flex flex-col justify-center items-center space-y-4">
-			<p className="text-4xl max-md:text-2xl px-2 text-center">Welcome to SteGG's Storage</p>
+			<p className="text-4xl max-md:text-2xl px-2 text-center">Welcome to SteGG&apos;s Storage</p>
 			<Link href="/storage" className="lg:text-lg flex">
 				<p className="after:content-space hover:after:content-none hover:underline">
 					Click here to enter the storage
