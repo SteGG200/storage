@@ -48,12 +48,12 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({type, path, itemnam
 		}
 	}
 
-	const renameAction = async (formData : FormData) => {
+	const renameAction = async (formData : FormData, onclose: () => void) => {
 		const newName = formData.get('name')
 		if(typeof newName !== 'string' || newName === ""){
 			setFilenameError(true)
 			setIsPending(false)
-			return false
+			return
 		}
 
 		const response = await fetch(`/api/${path}/${itemname}`, {
@@ -65,11 +65,12 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({type, path, itemnam
 
 		if(result.status === 200){
 			setIsPending(false)
-			return true
+			onclose()
+			onUpdate()
+			return
 		}
 
 		setRenameError(result.message)
-		return false
 	}
 
 	const deleteAction = async (onclose : () => void) => {
@@ -176,12 +177,9 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({type, path, itemnam
 							</ModalHeader>
 							<ModalBody>
 								{actionType === "rename" &&
-									<Form onAction={async (formData) => {
-										const isValid = await renameAction(formData)
-										if(isValid){
-											onclose()
-											onUpdate()
-										}
+									<Form onAction={(formData) => {
+										setIsPending(true)
+										renameAction(formData, onclose)
 									}}>
 										<Input type="text" isRequired label="New name" name="name" defaultValue={itemname} placeholder="Enter the new name" isDisabled={isPending} isInvalid={filenameError} onChange={() => setFilenameError(false)} errorMessage="Please enter a valid name"/>
 										{ renameError && <p className="text-customRed">{renameError}</p>}

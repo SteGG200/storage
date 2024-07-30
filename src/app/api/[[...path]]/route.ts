@@ -2,19 +2,7 @@ import fs from 'fs'
 import fsPromise from 'fs/promises'
 import { promisify } from 'util'
 import fastFolderSize from 'fast-folder-size'
-
-const sizeItemHandler = (size : number) => {
-	const maxDecimals = 2
-	const units = ['B', 'KB', 'MB', 'GB']
-	let currentUnitIndex = 0
-	let currentSize = size
-	while(currentSize >= 1000 && currentUnitIndex < units.length - 1){
-		currentSize /= 1000
-		currentUnitIndex++
-	}
-
-	return `${Math.round(currentSize * (10 ** maxDecimals)) / 10 ** maxDecimals} ${units[currentUnitIndex]}`
-}
+import { sizeItemHandler } from '@/utils/sizeItemHandler'
 
 export async function GET(request: Request, { params }: IParams){
 	const path = `${process.cwd()}/${process.env.UPLOAD_PATH}/${decodeURI(params.path?.join('/') ?? "")}`
@@ -66,6 +54,10 @@ export async function POST(request: Request, { params }: IParams){
 
 	const data = await request.formData()
 	const foldername = data.get('name')
+
+	if(typeof foldername !== 'string' || foldername === ""){
+		return Response.json({ status: 400, message: "Invalid folder name" })
+	} 
 
 	if(fs.existsSync(`${path}/${foldername}`)){
 		return Response.json({ status: 409, message: "This name already exists!"})

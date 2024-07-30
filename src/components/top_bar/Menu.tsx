@@ -77,7 +77,6 @@ const Menu : React.FC<IMenuProps> = ({ directory }) => {
 	}
 
 	const actionHandler = async (formData : FormData) => {
-		setIsPending(true)
 		const isValid = validations(formData)
 		if(!isValid){
 			setIsPending(false)
@@ -129,7 +128,10 @@ const Menu : React.FC<IMenuProps> = ({ directory }) => {
 				<ModalContent>
 					<ModalHeader>Upload File</ModalHeader>
 					<ModalBody>
-						<Form onAction={actionHandler}>
+						<Form onAction={(formData) => {
+							setIsPending(true)
+							actionHandler(formData)
+						}}>
 							{ actionType === "upload" ?
 								<>
 									<div className="space-y-10">

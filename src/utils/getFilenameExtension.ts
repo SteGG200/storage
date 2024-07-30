@@ -7,7 +7,9 @@ export function getFilenameExtension(filename: string){
 		}else if(filename[i] === '.'){
 			if(temp === "") break
 			extension = "." + temp + extension
+			temp = ""
 		}else break
 	}
+	console.log(extension)
 	return extension
 }
