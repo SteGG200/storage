@@ -28,6 +28,7 @@ const MainContent : React.FC<IMainContentProps> = ({ path }) => {
 	const [loading, setLoading] = React.useState(true)
 	const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
 	const [errorTable, setErrorTable] = React.useState("Not found and files or folders")
+	const [canUpdated, setCanUpdated] = React.useState(true)
 
 	const router = useRouter()
 	const pathname = usePathname()
@@ -45,10 +46,13 @@ const MainContent : React.FC<IMainContentProps> = ({ path }) => {
 			}
 
 			setLoading(false)
+			setCanUpdated(false)
 		}
 
-		getItems()
-	}, [])
+		if(canUpdated){
+			getItems()
+		}
+	}, [canUpdated])
 
 	return (
 		<Table
@@ -88,7 +92,7 @@ const MainContent : React.FC<IMainContentProps> = ({ path }) => {
 							if(columnKey === "action"){
 								return (
 									<TableCell>
-										<ActionButtonList accessible={item.type === "folder"}/>
+										<ActionButtonList path={path} itemname={item.name} type={item.type} onUpdate={() => {setCanUpdated(true)}}/>
 									</TableCell>
 								)
 							}
