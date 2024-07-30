@@ -1,6 +1,7 @@
 import fs from 'fs'
 import fsPromise from 'fs/promises'
-import path from 'path'
+import { promisify } from 'util'
+import fastFolderSize from 'fast-folder-size'
 
 interface IParams {
 	params: {
@@ -14,7 +15,7 @@ const sizeItemHandler = (size : number) => {
 	let currentUnitIndex = 0
 	let currentSize = size
 	while(currentSize >= 1000 && currentUnitIndex < units.length - 1){
-		currentSize /= 1024
+		currentSize /= 1000
 		currentUnitIndex++
 	}
 
@@ -31,14 +32,31 @@ export async function GET(request: Request, { params }: IParams){
 
 	let items: IItem[] = []
 
-	for (let index = 0; index < tempItems.length; index++){
-		const item = tempItems[index]
-		const stat = await fsPromise.stat(`${path}/${item}`)
+	const stats = await Promise.all(tempItems.map((item) => {
+		return fsPromise.stat(`${path}/${item}`)
+	}))
+
+	const fastFolderSizeAsync = promisify(fastFolderSize)
+
+	const sizeItems = await Promise.all(tempItems.map((item, index) => {
+		if(stats[index].isDirectory()) return fastFolderSizeAsync(`${path}/${item}`)
+		return stats[index].size
+	}))
+
+	for(let index = 0; index < stats.length; index++){
+		const nameItem = tempItems[index]
+		const stat = stats[index]
+		const size = sizeItems[index]
+		if(typeof size === 'undefined'){
+			console.log(size)
+			return Response.json({ status: 400, message: "There is thing wrong"})
+		}
+
 		items.push({
-			type: stat.isDirectory()? "folder" : "file",
-      name: item,
-      size: sizeItemHandler(stat.size),
-      key: index.toString()
+			type: stat.isDirectory() ? 'folder' : 'file',
+			name: nameItem,
+			size: sizeItemHandler(size),
+			key: index.toString()
 		})
 	}
 
