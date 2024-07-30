@@ -10,3 +10,9 @@ interface IItem {
 interface IIconProps {
 	className: string
 }
+
+interface IParams {
+	params: {
+		path: string[] | undefined
+	}
+}

@@ -3,12 +3,6 @@ import fsPromise from 'fs/promises'
 import { promisify } from 'util'
 import fastFolderSize from 'fast-folder-size'
 
-interface IParams {
-	params: {
-		path: string[] | undefined
-	}
-}
-
 const sizeItemHandler = (size : number) => {
 	const maxDecimals = 2
 	const units = ['B', 'KB', 'MB', 'GB']
@@ -61,4 +55,23 @@ export async function GET(request: Request, { params }: IParams){
 	}
 
 	return Response.json({ status: 200, items })
+}
+
+export async function POST(request: Request, { params }: IParams){
+	const path = `${process.cwd()}/${process.env.UPLOAD_PATH}/${params.path?.join('/') ?? ""}`
+	
+	if(!fs.existsSync(path)){
+		return Response.json({ status: 404, message: "Directory does not exist!"})
+	}
+
+	const data = await request.formData()
+	const foldername = data.get('name')
+
+	if(fs.existsSync(`${path}/${foldername}`)){
+		return Response.json({ status: 409, message: "Folder already exists!"})
+	}
+
+	await fsPromise.mkdir(`${path}/${foldername}`)
+
+	return Response.json({ status: 200 })
 }

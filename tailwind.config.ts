@@ -14,7 +14,8 @@ const config: Config = {
 				'customWhite': '#E3E3E3',
 				'customBlack': '#131314',
 				'customGray': '#848484',
-				'customDarkGray': '#3a3a3a'
+				'customDarkGray': '#3a3a3a',
+				'customRed': '#F31260'
 			},
 			content: {
 				'space': '\"\u2800\"'
