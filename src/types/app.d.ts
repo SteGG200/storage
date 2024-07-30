@@ -1,18 +1,18 @@
-type ItemType = "file" | "folder"
+type ItemType = 'file' | 'folder';
 
 interface IItem {
-	type: ItemType
-	name: string
-	size: string
-	key: string
+	type: ItemType;
+	name: string;
+	size: string;
+	key: string;
 }
 
 interface IIconProps {
-	className: string
+	className: string;
 }
 
 interface IParams {
 	params: {
-		path: string[] | undefined
-	}
+		path: string[] | undefined;
+	};
 }

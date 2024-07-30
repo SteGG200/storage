@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Inter } from 'next/font/google'
+import { Inter } from 'next/font/google';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
 	title: 'Storage',
@@ -16,7 +16,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body suppressHydrationWarning={true} className={`${inter.className} text-customWhite dark`}>{children}</body>
+			<body suppressHydrationWarning={true} className={`${inter.className} text-customWhite dark`}>
+				{children}
+			</body>
 		</html>
 	);
 }
