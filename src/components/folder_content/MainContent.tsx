@@ -71,7 +71,7 @@ const MainContent: React.FC<IMainContentProps> = ({ path }) => {
 			layout="fixed"
 			selectedKeys={selectedKeys}
 			onSelectionChange={(key) => {
-				console.log(key);
+				// console.log(key);
 				setSelectedKeys(key);
 			}}
 		>

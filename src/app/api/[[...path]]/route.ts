@@ -34,7 +34,7 @@ export async function GET(request: Request, { params }: IParams) {
 		const stat = stats[index];
 		const size = sizeItems[index];
 		if (typeof size === 'undefined') {
-			console.log(size);
+			// console.log(size);
 			return Response.json({ status: 400, message: 'There is thing wrong' });
 		}
 

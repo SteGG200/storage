@@ -10,6 +10,6 @@ export function getFilenameExtension(filename: string) {
 			temp = '';
 		} else break;
 	}
-	console.log(extension);
+	// console.log(extension);
 	return extension;
 }

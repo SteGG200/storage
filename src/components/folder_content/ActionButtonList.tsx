@@ -51,7 +51,7 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 		const response = await fetch(`/api/download/${path}/${encodeURI(itemname)}`);
 		if (response.headers.get('content-type') === 'application/json') {
 			const result = await response.json();
-			console.log(result);
+			// console.log(result);
 		} else {
 			const data = await response.blob();
 			const tempURL = window.URL.createObjectURL(data);
@@ -100,7 +100,7 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 			onUpdate();
 			onclose();
 		}
-		console.log(result);
+		// console.log(result);
 	};
 
 	return (
