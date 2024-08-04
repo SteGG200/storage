@@ -63,10 +63,11 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 	};
 
 	const renameAction = async (formData: FormData, onclose: () => void) => {
-		setIsPending(false);
+		setIsPending(true);
 		const newName = formData.get('name');
 		if (typeof newName !== 'string' || newName === '') {
 			setFilenameError(true);
+			setIsPending(false);
 			return;
 		}
 
@@ -77,6 +78,8 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 
 		const result = await response.json();
 
+		setIsPending(false);
+		
 		if (result.status === 200) {
 			onclose();
 			onUpdate();
@@ -87,18 +90,19 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 	};
 
 	const deleteAction = async (onclose: () => void) => {
-		setIsPending(false);
-
+		setIsPending(true);
 		const response = await fetch(`/api/${path}/${itemname}`, {
 			method: 'DELETE'
 		});
-
+		
 		const result = await response.json();
 
 		if (result.status === 200) {
 			onUpdate();
 			onclose();
 		}
+
+		setIsPending(false);
 		// console.log(result);
 	};
 
@@ -198,7 +202,6 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 								{actionType === 'rename' && (
 									<Form
 										onAction={(formData) => {
-											setIsPending(true);
 											renameAction(formData, onclose);
 										}}
 									>
@@ -228,7 +231,6 @@ const ActionButtonList: React.FC<IActionButtonListProps> = ({ type, path, itemna
 										color="danger"
 										isLoading={isPending}
 										onPress={() => {
-											setIsPending(true);
 											deleteAction(onclose);
 										}}
 									>

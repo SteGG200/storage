@@ -73,7 +73,6 @@ const PathShowAndSearch: React.FC<IDirectoryProps> = ({ directory }) => {
 	const [isSearching, setIsSearching] = React.useState(false);
 
 	const handleKeyEvent = (event: KeyboardEvent) => {
-		console.log(event.key);
 		if (event.key === 'Escape') {
 			setIsSearching(false);
 		} else if (event.ctrlKey && event.key === 'k') {
