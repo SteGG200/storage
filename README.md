@@ -3,6 +3,7 @@ This is a personal project to manage file and folder from remote storage.
 ## Getting Started
 
 First, install all dependencies:
+
 ```bash
 pnpm install
 ```

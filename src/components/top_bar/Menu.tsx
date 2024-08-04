@@ -44,7 +44,7 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 		if (result.status === 200) {
 			return null;
 		} else {
-			return result.message;
+			return result.message as string;
 		}
 	};
 
@@ -59,7 +59,7 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 		if (result.status === 200) {
 			return null;
 		} else {
-			return result.message;
+			return result.message as string;
 		}
 	};
 
@@ -90,22 +90,25 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 	};
 
 	const actionHandler = async (formData: FormData) => {
+		setIsPending(false);
 		const isValid = validations(formData);
 		if (!isValid) {
-			setIsPending(false);
 			return;
 		}
+		let err: string | null;
 		if (actionType === 'upload') {
-			const err = await uploadFileAction(formData);
-			setError(err);
+			err = await uploadFileAction(formData);
 		} else if (actionType === 'new') {
-			const err = await createFolderAction(formData);
-			setError(err);
-		} else setError('There was an error');
-		setIsPending(false);
-		if (!error) {
-			window.location.reload();
+			err = await createFolderAction(formData);
+		} else {
+			setError('Invalid action type');
+			return;
 		}
+		if (err) {
+			setError(err);
+			return;
+		}
+		window.location.reload();
 	};
 
 	return (
@@ -178,30 +181,24 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 											errorMessage="Please upload a valid file"
 										/>
 									</div>
-									{error && <p className="text-customRed">{error}</p>}
-									<Button type="submit" color="primary" isLoading={isPending}>
-										Submit
-									</Button>
 								</>
 							) : (
-								<>
-									<Input
-										type="text"
-										isRequired
-										label="Folder name"
-										name="name"
-										placeholder="Enter your folder's name"
-										isDisabled={isPending}
-										isInvalid={foldernameError}
-										onChange={() => setFolderNameError(false)}
-										errorMessage="Please enter a valid folder's name"
-									/>
-									{error && <p className="text-customRed">{error}</p>}
-									<Button type="submit" color="primary" isLoading={isPending}>
-										Submit
-									</Button>
-								</>
+								<Input
+									type="text"
+									isRequired
+									label="Folder name"
+									name="name"
+									placeholder="Enter your folder's name"
+									isDisabled={isPending}
+									isInvalid={foldernameError}
+									onChange={() => setFolderNameError(false)}
+									errorMessage="Please enter a valid folder's name"
+								/>
 							)}
+							{error && <p className="text-customRed">{error}</p>}
+							<Button type="submit" color="primary" isLoading={isPending}>
+								Submit
+							</Button>
 						</Form>
 					</ModalBody>
 					<ModalFooter></ModalFooter>
