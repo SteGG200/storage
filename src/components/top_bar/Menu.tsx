@@ -203,6 +203,7 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 												}
 												setFileName(event.target.files[0].name)
 												setFileError(false)
+												setFilenameError(false)
 											}}
 											errorMessage="Please upload a valid file"
 										/>
