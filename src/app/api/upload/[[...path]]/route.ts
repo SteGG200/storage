@@ -1,6 +1,5 @@
 import fsPromise from 'fs/promises';
 import fs from 'fs';
-import { getFilenameExtension } from '@/utils/getFilenameExtension';
 
 export async function POST(request: Request, { params }: IParams) {
 	const data = await request.formData();
@@ -13,13 +12,13 @@ export async function POST(request: Request, { params }: IParams) {
 		return Response.json({ status: 400, message: 'Invalid' });
 	}
 
-	if (fs.existsSync(`${path}/${filename}${getFilenameExtension(file.name)}`)) {
+	if (fs.existsSync(`${path}/${filename}`)) {
 		return Response.json({ status: 409, message: 'This name already exists' });
 	}
 
 	const buffer = Buffer.from(await file.arrayBuffer());
 
-	await fsPromise.writeFile(`${path}/${filename}${getFilenameExtension(file.name)}`, buffer);
+	await fsPromise.writeFile(`${path}/${filename}`, buffer);
 
 	return Response.json({ status: 200, message: 'ok' });
 }

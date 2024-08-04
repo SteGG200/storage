@@ -24,13 +24,24 @@ interface IMenuProps {
 	directory: string;
 }
 
+const test = new Promise((resolve, reject) => {
+	setTimeout(() => {
+    resolve('here');
+  }, 10000);
+})
+
 const Menu: React.FC<IMenuProps> = ({ directory }) => {
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
 	const [actionType, setActionType] = React.useState('');
 	const [isPending, setIsPending] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
+
+	// State for upload file action
+	const [fileName, setFileName] = React.useState("")
 	const [filenameError, setFilenameError] = React.useState(false);
 	const [fileError, setFileError] = React.useState(false);
+
+	// State for create folder action
 	const [foldernameError, setFolderNameError] = React.useState(false);
 
 	const uploadFileAction = async (formData: FormData) => {
@@ -90,9 +101,10 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 	};
 
 	const actionHandler = async (formData: FormData) => {
-		setIsPending(false);
+		setIsPending(true);
 		const isValid = validations(formData);
 		if (!isValid) {
+			setIsPending(false);
 			return;
 		}
 		let err: string | null;
@@ -102,10 +114,14 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 			err = await createFolderAction(formData);
 		} else {
 			setError('Invalid action type');
+			setIsPending(false);
 			return;
 		}
 		if (err) {
+			const testM = await test
+			console.log(testM)
 			setError(err);
+			setIsPending(false);
 			return;
 		}
 		window.location.reload();
@@ -152,7 +168,6 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 					<ModalBody>
 						<Form
 							onAction={(formData) => {
-								setIsPending(true);
 								actionHandler(formData);
 							}}
 						>
@@ -165,9 +180,13 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 											label="File name"
 											name="name"
 											placeholder="Enter your file's name"
+											value={fileName}
 											isDisabled={isPending}
 											isInvalid={filenameError}
-											onChange={() => setFilenameError(false)}
+											onChange={(event) => {
+												setFileName(event.target.value)
+												setFilenameError(false)
+											}}
 											errorMessage="Please enter a valid file's name"
 										/>
 										<Input
@@ -177,7 +196,14 @@ const Menu: React.FC<IMenuProps> = ({ directory }) => {
 											name="file"
 											isDisabled={isPending}
 											isInvalid={fileError}
-											onChange={() => setFileError(false)}
+											onChange={(event) => {
+												if(!event.target.files || event.target.files.length > 1){
+													setFileError(true)
+													return
+												}
+												setFileName(event.target.files[0].name)
+												setFileError(false)
+											}}
 											errorMessage="Please upload a valid file"
 										/>
 									</div>
