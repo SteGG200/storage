@@ -9,7 +9,7 @@ import (
 var (
 	dbFilePath       = flag.String("database", "./data.db", "Path to your database file.")
 	storageDirectory = flag.String("storage", "./storage", "Path to your storage directory.")
-	logFilePath      = flag.String("log", "./.log", "Path to your log file.")
+	logFilePath      = flag.String("log", "std", "Path to your log file. If not provided, the default is standard output.")
 )
 
 func main() {
@@ -17,5 +17,5 @@ func main() {
 
 	logger.SetFile(*logFilePath)
 
-	logger.ErrorLogger.Fatal(*dbFilePath, *storageDirectory)
+	logger.InfoLogger.Println(*dbFilePath, *storageDirectory)
 }

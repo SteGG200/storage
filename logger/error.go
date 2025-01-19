@@ -8,5 +8,5 @@ import (
 var ErrorLogger *log.Logger
 
 func init() {
-	ErrorLogger = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	ErrorLogger = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 }
