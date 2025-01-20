@@ -11,12 +11,11 @@ func NewRouter(config config.Config) (router *http.ServeMux) {
 	router = http.NewServeMux()
 
 	// Upload
-
-	getitems.New(router, config)
-
 	// Download
 	// Delete
+
 	// List
+	router.Handle("/", getitems.New(config))
 	// Search
 	// Authentication
 

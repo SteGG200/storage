@@ -5,22 +5,23 @@ import (
 	"net/http"
 
 	"github.com/SteGG200/storage/config"
+	"github.com/SteGG200/storage/server/mux"
 )
 
-type ListHandler struct {
-	config config.Config
+type Mux struct {
+	*mux.Mux
 }
 
-func New(router *http.ServeMux, config config.Config) {
-	listHandler := &ListHandler{
-		config: config,
+func New(config config.Config) (router *Mux) {
+	router = &Mux{
+		mux.New(config),
 	}
 
-	router.Handle("/", listHandler)
+	return
 }
 
-func (listHandler *ListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	body, err := json.Marshal(listHandler.config)
+func (router *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	body, err := json.Marshal(router.Config)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
