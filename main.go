@@ -5,9 +5,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/SteGG200/storage/config"
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server"
+	"github.com/SteGG200/storage/server/config"
 	"github.com/joho/godotenv"
 )
 

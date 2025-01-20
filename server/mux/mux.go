@@ -3,7 +3,7 @@ package mux
 import (
 	"net/http"
 
-	"github.com/SteGG200/storage/config"
+	"github.com/SteGG200/storage/server/config"
 )
 
 type Mux struct {

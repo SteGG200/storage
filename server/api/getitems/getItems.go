@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/SteGG200/storage/config"
+	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/mux"
 )
 

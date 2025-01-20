@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/SteGG200/storage/config"
 	"github.com/SteGG200/storage/logger"
+	"github.com/SteGG200/storage/server/config"
 )
 
 type Server struct {
