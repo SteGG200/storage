@@ -21,12 +21,12 @@ func New(config *config.Config) (router *Mux) {
 		mux.New(config),
 	}
 
-	router.HandleFunc("/{path...}", router.ServeData)
+	router.HandleFunc("/{path...}", router.serveData)
 
 	return
 }
 
-func (router *Mux) ServeData(w http.ResponseWriter, r *http.Request) {
+func (router *Mux) serveData(w http.ResponseWriter, r *http.Request) {
 	items, err := listItems(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
 
 	if err != nil {
