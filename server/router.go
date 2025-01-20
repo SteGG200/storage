@@ -15,7 +15,7 @@ func NewRouter(config config.Config) (router *http.ServeMux) {
 	// Delete
 
 	// List
-	router.Handle("/", getitems.New(config))
+	router.Handle("GET /get/", http.StripPrefix("/get", getitems.New(config)))
 	// Search
 	// Authentication
 

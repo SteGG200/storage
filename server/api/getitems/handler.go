@@ -2,6 +2,7 @@ package getitems
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/SteGG200/storage/server/config"
@@ -17,11 +18,21 @@ func New(config config.Config) (router *Mux) {
 		mux.New(config),
 	}
 
+	router.HandleFunc("/{path...}", router.ServeData)
+
 	return
 }
 
-func (router *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	body, err := json.Marshal(router.Config)
+func (router *Mux) ServeData(w http.ResponseWriter, r *http.Request) {
+	items, err := listItems(fmt.Sprintf("%s/%s", router.Config.StoragePath, r.PathValue("path")))
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	body, err := json.Marshal(items)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

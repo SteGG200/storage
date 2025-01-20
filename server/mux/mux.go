@@ -27,3 +27,7 @@ func (mux *Mux) Handle(pattern string, handler http.Handler) {
 func (mux *Mux) HandleFunc(pattern string, handlerFunc http.HandlerFunc) {
 	mux.router.HandleFunc(pattern, handlerFunc)
 }
+
+func (mux *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	mux.router.ServeHTTP(w, r)
+}
