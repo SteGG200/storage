@@ -2,10 +2,13 @@ package getitems
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
 	"net/http"
 
 	"github.com/SteGG200/storage/server/config"
+	"github.com/SteGG200/storage/server/exception"
 	"github.com/SteGG200/storage/server/mux"
 )
 
@@ -27,6 +30,10 @@ func (router *Mux) ServeData(w http.ResponseWriter, r *http.Request) {
 	items, err := listItems(fmt.Sprintf("%s/%s", router.Config.StoragePath, r.PathValue("path")))
 
 	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotADirectory) {
+			http.Error(w, "Not found directory", http.StatusNotFound)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

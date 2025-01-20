@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/SteGG200/storage/logger"
+	"github.com/SteGG200/storage/server/exception"
 )
 
 type Item struct {
@@ -15,6 +16,18 @@ type Item struct {
 }
 
 func listItems(pattern string) (items []Item, err error) {
+	stat, err := os.Stat(pattern)
+
+	if err != nil {
+		logger.ErrorLogger.Print(err)
+		return nil, err
+	}
+
+	if !stat.IsDir() {
+		logger.ErrorLogger.Printf("%s is not a directory", pattern)
+		return nil, exception.ErrNotADirectory
+	}
+
 	entries, err := os.ReadDir(pattern)
 
 	if err != nil {
@@ -48,10 +61,10 @@ func listItems(pattern string) (items []Item, err error) {
 		}
 
 		items = append(items, Item{
-			Name:        entry.Name(),
+			Name:        info.Name(),
 			Size:        size,
 			Date:        info.ModTime(),
-			IsDirectory: entry.IsDir(),
+			IsDirectory: info.IsDir(),
 		})
 	}
 
