@@ -7,7 +7,7 @@ import (
 	"github.com/SteGG200/storage/server/config"
 )
 
-func NewRouter(config config.Config) (router *http.ServeMux) {
+func NewRouter(config *config.Config) (router *http.ServeMux) {
 	router = http.NewServeMux()
 
 	// Upload

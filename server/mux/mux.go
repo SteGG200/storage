@@ -8,10 +8,10 @@ import (
 
 type Mux struct {
 	router *http.ServeMux
-	Config config.Config
+	Config *config.Config
 }
 
-func New(config config.Config) (mux *Mux) {
+func New(config *config.Config) (mux *Mux) {
 	mux = &Mux{
 		router: http.NewServeMux(),
 		Config: config,

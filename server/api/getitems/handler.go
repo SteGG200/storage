@@ -16,7 +16,7 @@ type Mux struct {
 	*mux.Mux
 }
 
-func New(config config.Config) (router *Mux) {
+func New(config *config.Config) (router *Mux) {
 	router = &Mux{
 		mux.New(config),
 	}
@@ -27,7 +27,7 @@ func New(config config.Config) (router *Mux) {
 }
 
 func (router *Mux) ServeData(w http.ResponseWriter, r *http.Request) {
-	items, err := listItems(fmt.Sprintf("%s/%s", router.Config.StoragePath, r.PathValue("path")))
+	items, err := listItems(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
 
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotADirectory) {

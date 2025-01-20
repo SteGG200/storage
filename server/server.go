@@ -11,7 +11,7 @@ import (
 
 type Server struct {
 	http   *http.Server
-	config config.Config
+	config *config.Config
 }
 
 func New(db *string, configs ...config.ConfigFunc) (server *Server) {
