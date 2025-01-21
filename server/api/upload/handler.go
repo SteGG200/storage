@@ -15,24 +15,19 @@ type Mux struct {
 	*mux.Mux
 }
 
-func New(config *config.Config) (router *Mux) {
-	router = &Mux{
+func New(config *config.Config) http.Handler {
+	router := &Mux{
 		mux.New(config),
 	}
 
 	router.HandleFunc("/{path...}", router.serveData)
 
-	return
+	return setMiddleware(router)
 }
 
 func (router *Mux) serveData(w http.ResponseWriter, r *http.Request) {
 	filename := r.FormValue("name")
-	file, header, err := r.FormFile("file")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	file, header, _ := r.FormFile("file")
 
 	data := make([]byte, header.Size)
 
@@ -47,11 +42,15 @@ func (router *Mux) serveData(w http.ResponseWriter, r *http.Request) {
 		logger.WarningLogger.Print("Cannot read entire file.")
 	}
 
-	err = saveFile(data, fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), filename))
+	err = saveFile(data, fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")), filename)
 
 	if err != nil {
 		if errors.Is(err, fs.ErrExist) {
 			http.Error(w, "File already exists", http.StatusConflict)
+			return
+		}
+		if errors.Is(err, fs.ErrNotExist) {
+			http.Error(w, "Directory does not exist", http.StatusNotFound)
 			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)

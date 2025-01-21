@@ -7,6 +7,7 @@ import (
 
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server/config"
+	"github.com/SteGG200/storage/server/middleware"
 )
 
 type Server struct {
@@ -25,7 +26,7 @@ func New(db *string, configs ...config.ConfigFunc) (server *Server) {
 		config: config.New(db, configs...),
 	}
 
-	server.http.Handler = NewRouter(server.config)
+	server.http.Handler = SetMiddleware(NewRouter(server.config))
 
 	return
 }
@@ -34,4 +35,10 @@ func (server *Server) Start(port string) error {
 	server.http.Addr = fmt.Sprintf(":%s", port)
 	logger.InfoLogger.Printf("Listening on port %s", port)
 	return server.http.ListenAndServe()
+}
+
+func SetMiddleware(handler http.Handler) http.Handler {
+	return middleware.Chain(handler,
+		middleware.Log,
+	)
 }
