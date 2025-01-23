@@ -30,6 +30,8 @@ func saveFile(data []byte, path string, filename string) error {
 		return err
 	}
 
+	defer file.Close()
+
 	size, err := file.Write(data)
 
 	if size < len(data) {
