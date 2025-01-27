@@ -23,7 +23,7 @@ func createFile(path string, filename string) error {
 		return fs.ErrExist
 	}
 
-	_, err = os.Create(path + "/" + filename)
+	_, err = os.OpenFile(path+"/"+filename, os.O_CREATE, 0644)
 
 	if err != nil {
 		logger.ErrorLogger.Print(err)
