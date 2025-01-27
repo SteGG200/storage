@@ -1,14 +1,16 @@
 package config
 
+import "github.com/SteGG200/storage/db"
+
 type Config struct {
-	database    *string
+	database    *db.DB
 	storagePath string
 	verbose     bool
 }
 
 type ConfigFunc func(config *Config)
 
-func New(database *string, configs ...ConfigFunc) (config *Config) {
+func New(database *db.DB, configs ...ConfigFunc) (config *Config) {
 	config = &Config{
 		database: database,
 	}
@@ -20,6 +22,6 @@ func New(database *string, configs ...ConfigFunc) (config *Config) {
 	return
 }
 
-func (config *Config) GetDatabase() *string {
+func (config *Config) GetDatabase() *db.DB {
 	return config.database
 }

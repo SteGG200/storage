@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS upload_session (
+	token TEXT PRIMARY KEY NOT NULL,
+	path TEXT NOT NULL,
+	filename TEXT NOT NULL,
+	created_at INTEGER NOT NULL
+);

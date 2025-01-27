@@ -2,5 +2,6 @@
 !.env.example
 build/
 *.db
+*.db.bak
 *.log
 storage/

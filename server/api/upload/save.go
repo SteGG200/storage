@@ -8,7 +8,7 @@ import (
 	"github.com/SteGG200/storage/logger"
 )
 
-func saveFile(data []byte, path string, filename string) error {
+func createFile(path string, filename string) error {
 	_, err := os.Stat(path)
 
 	if err != nil {
@@ -23,7 +23,18 @@ func saveFile(data []byte, path string, filename string) error {
 		return fs.ErrExist
 	}
 
-	file, err := os.Create(path + "/" + filename)
+	_, err = os.Create(path + "/" + filename)
+
+	if err != nil {
+		logger.ErrorLogger.Print(err)
+		return err
+	}
+
+	return nil
+}
+
+func saveFile(data []byte, path string, filename string) error {
+	file, err := os.OpenFile(path+"/"+filename, os.O_APPEND|os.O_WRONLY, 0600)
 
 	if err != nil {
 		logger.ErrorLogger.Print(err)

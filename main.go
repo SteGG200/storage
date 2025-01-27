@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/SteGG200/storage/db"
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server"
 	"github.com/SteGG200/storage/server/config"
@@ -26,12 +27,19 @@ func main() {
 		logger.ErrorLogger.Fatal(err)
 	}
 
+	db, err := db.New(*dbFilePath)
+
+	if err != nil {
+		logger.ErrorLogger.Fatal(err)
+		return
+	}
+
 	serverConfigs := []config.ConfigFunc{
 		config.SetVerbose(),
 		config.SetStoragePath(*storagePath),
 	}
 
-	server := server.New(dbFilePath, serverConfigs...)
+	server := server.New(db, serverConfigs...)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)

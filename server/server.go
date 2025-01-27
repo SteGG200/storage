@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/SteGG200/storage/db"
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server/config"
 )
@@ -14,7 +15,7 @@ type Server struct {
 	config *config.Config
 }
 
-func New(db *string, configs ...config.ConfigFunc) (server *Server) {
+func New(db *db.DB, configs ...config.ConfigFunc) (server *Server) {
 	server = &Server{
 		http: &http.Server{
 			MaxHeaderBytes: 1 << 20, // 1MB
