@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/SteGG200/storage/server/middleware"
+	"github.com/SteGG200/storage/server/utils"
 )
 
 func validation(next http.Handler) http.Handler {
@@ -27,19 +27,13 @@ func validation(next http.Handler) http.Handler {
 			return
 		}
 
-		token := r.FormValue("token")
+		typeToken, token := utils.GetAuthorizationHeader(r)
 
-		if token == "" {
-			http.Error(w, "Token is required", http.StatusBadRequest)
+		if typeToken != "Bearer" || token == "" {
+			http.Error(w, "Invalid Authorization", http.StatusUnauthorized)
 			return
 		}
 
 		next.ServeHTTP(w, r)
 	})
-}
-
-func setMiddleware(handler http.Handler) http.Handler {
-	return middleware.Chain(handler,
-		validation,
-	)
 }

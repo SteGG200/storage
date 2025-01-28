@@ -6,7 +6,7 @@ import (
 	"github.com/SteGG200/storage/server/exception"
 )
 
-func Verify(database *db.DB, tokenString string) (session *db.UploadSession, err error) {
+func VerifyUploadSession(database *db.DB, tokenString string) (session *db.UploadSession, err error) {
 	data, err := ParseToken(tokenString)
 
 	if err != nil {

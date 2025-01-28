@@ -12,6 +12,7 @@ import (
 	"github.com/SteGG200/storage/db"
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server/config"
+	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
 	"github.com/SteGG200/storage/server/utils"
 )
@@ -88,10 +89,10 @@ func (router *Mux) sendToken(w http.ResponseWriter, r *http.Request) {
 func (router *Mux) uploadData(w http.ResponseWriter, r *http.Request) {
 	filename := r.FormValue("name")
 	file, header, _ := r.FormFile("file")
-	token := r.FormValue("token")
+	_, token := utils.GetAuthorizationHeader(r)
 	isLast := r.FormValue("isLast")
 
-	session, err := utils.Verify(router.Config.GetDatabase(), token)
+	session, err := utils.VerifyUploadSession(router.Config.GetDatabase(), token)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusUnauthorized)
@@ -134,4 +135,11 @@ func (router *Mux) uploadData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Write([]byte("OK"))
+}
+
+func setMiddleware(handler http.Handler) http.Handler {
+	return middleware.Chain(handler,
+		validation,
+		preflightHandler,
+	)
 }
