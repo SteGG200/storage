@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/SteGG200/storage/server/config"
+	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
 )
 
@@ -18,7 +19,7 @@ func New(config *config.Config) http.Handler {
 
 	router.HandleFunc("/{path...}", router.createFolder)
 
-	return router
+	return setMiddleware(router)
 }
 
 func (router *Mux) createFolder(w http.ResponseWriter, r *http.Request) {
@@ -34,4 +35,10 @@ func (router *Mux) createFolder(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Folder created successfully"))
+}
+
+func setMiddleware(next http.Handler) http.Handler {
+	return middleware.Chain(next,
+		validation,
+	)
 }

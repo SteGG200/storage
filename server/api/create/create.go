@@ -23,7 +23,7 @@ func createFolder(path string, foldername string) error {
 		return fs.ErrExist
 	}
 
-	err = os.Mkdir(path+"/"+foldername, 0777)
+	err = os.Mkdir(path+"/"+foldername, 0744)
 
 	if err != nil {
 		logger.ErrorLogger.Print(err)
