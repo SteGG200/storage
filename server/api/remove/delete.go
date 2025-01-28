@@ -6,7 +6,7 @@ import (
 	"github.com/SteGG200/storage/logger"
 )
 
-func deleteItem(path string) error {
+func removeItem(path string) error {
 	_, err := os.Stat(path)
 
 	if err != nil {

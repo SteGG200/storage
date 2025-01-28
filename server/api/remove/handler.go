@@ -18,12 +18,12 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.HandleFunc("/{path...}", router.deleteItem)
+	router.HandleFunc("/{path...}", router.removeItem)
 
 	return router
 }
 
-func (router *Mux) deleteItem(w http.ResponseWriter, r *http.Request) {
+func (router *Mux) removeItem(w http.ResponseWriter, r *http.Request) {
 	path := r.PathValue("path")
 
 	if path == "" {
@@ -31,7 +31,7 @@ func (router *Mux) deleteItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := deleteItem(router.Config.GetStoragePath() + "/" + path)
+	err := removeItem(router.Config.GetStoragePath() + "/" + path)
 
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {

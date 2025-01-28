@@ -22,7 +22,7 @@ func NewRouter(config *config.Config) (router *http.ServeMux) {
 	//Create
 	router.Handle("POST /create/", http.StripPrefix("/create", create.New(config)))
 	// Delete
-	router.Handle("DELETE /delete/", http.StripPrefix("/delete", remove.New(config)))
+	router.Handle("DELETE /remove/", http.StripPrefix("/remove", remove.New(config)))
 
 	// List
 	router.Handle("GET /get/", http.StripPrefix("/get", getitems.New(config)))
