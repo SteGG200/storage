@@ -16,35 +16,37 @@ type Mux struct {
 	*mux.Mux
 }
 
-func New(config *config.Config) (router *Mux) {
-	router = &Mux{
+func New(config *config.Config) http.Handler {
+	router := &Mux{
 		mux.New(config),
 	}
 
-	router.HandleFunc("/{path...}", router.serveData)
+	router.Handle("/{path...}", router.serveData())
 
-	return
+	return router
 }
 
-func (router *Mux) serveData(w http.ResponseWriter, r *http.Request) {
-	items, err := listItems(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
+func (router *Mux) serveData() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		items, err := listItems(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
 
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotADirectory) {
-			http.Error(w, "Not found directory", http.StatusNotFound)
+		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotADirectory) {
+				http.Error(w, "Not found directory", http.StatusNotFound)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
-	body, err := json.Marshal(items)
+		body, err := json.Marshal(items)
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(body)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(body)
+	})
 }

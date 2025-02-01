@@ -20,30 +20,32 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.HandleFunc("/{path...}", router.serveData)
+	router.Handle("/{path...}", router.serveData())
 
 	return router
 }
 
-func (router *Mux) serveData(w http.ResponseWriter, r *http.Request) {
-	file, err := readFile(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
+func (router *Mux) serveData() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		file, err := readFile(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
 
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotAFile) {
-			http.Error(w, "Not found file", http.StatusNotFound)
+		if err != nil {
+			if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotAFile) {
+				http.Error(w, "Not found file", http.StatusNotFound)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
+		defer file.Close()
 
-	stat, err := file.Stat()
+		stat, err := file.Stat()
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	http.ServeContent(w, r, stat.Name(), stat.ModTime(), file)
+		http.ServeContent(w, r, stat.Name(), stat.ModTime(), file)
+	})
 }
