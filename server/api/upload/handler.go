@@ -143,6 +143,5 @@ func (router *Mux) uploadData() http.Handler {
 func setMiddleware(handler http.Handler) http.Handler {
 	return middleware.Chain(handler,
 		validation,
-		preflightHandler,
 	)
 }
