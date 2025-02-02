@@ -10,7 +10,7 @@ import (
 
 func setMiddleware(handler http.Handler) http.Handler {
 	return middleware.Chain(handler,
-		middleware.Log,
+		middleware.SetLog,
 		middleware.SetCORS,
 	)
 }
