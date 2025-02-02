@@ -26,7 +26,7 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("/token/{path...}", router.sendToken())
+	router.Handle("/token/{path...}", middleware.SetAuthorization(router.sendToken(), "path", router.Config.GetDatabase()))
 	router.Handle("/file", router.uploadData())
 
 	return setMiddleware(router)

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/SteGG200/storage/server/config"
+	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
 )
 
@@ -18,7 +19,7 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("/{path...}", router.removeItem())
+	router.Handle("/{path...}", middleware.SetAuthorization(router.removeItem(), "path", router.Config.GetDatabase()))
 
 	return router
 }

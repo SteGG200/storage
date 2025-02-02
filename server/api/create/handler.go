@@ -17,7 +17,7 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("/{path...}", router.createFolder())
+	router.Handle("/{path...}", middleware.SetAuthorization(router.createFolder(), "path", router.Config.GetDatabase()))
 
 	return setMiddleware(router)
 }

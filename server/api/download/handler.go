@@ -8,6 +8,7 @@ import (
 
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/exception"
+	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
 )
 
@@ -20,7 +21,7 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("/{path...}", router.serveData())
+	router.Handle("/{path...}", middleware.SetAuthorization(router.serveData(), "path", router.Config.GetDatabase()))
 
 	return router
 }
