@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/SteGG200/storage/logger"
 )
@@ -16,14 +17,14 @@ func createFile(path string, filename string) error {
 		return err
 	}
 
-	_, err = os.Stat(path + "/" + filename)
+	_, err = os.Stat(filepath.Join(path, filename))
 
 	if !errors.Is(err, fs.ErrNotExist) {
 		logger.ErrorLogger.Print(fs.ErrExist)
 		return fs.ErrExist
 	}
 
-	_, err = os.OpenFile(path+"/"+filename, os.O_CREATE, 0644)
+	_, err = os.OpenFile(filepath.Join(path, filename), os.O_CREATE, 0644)
 
 	if err != nil {
 		logger.ErrorLogger.Print(err)
@@ -34,7 +35,7 @@ func createFile(path string, filename string) error {
 }
 
 func saveFile(data []byte, path string, filename string) error {
-	file, err := os.OpenFile(path+"/"+filename, os.O_APPEND|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filepath.Join(path, filename), os.O_APPEND|os.O_WRONLY, 0600)
 
 	if err != nil {
 		logger.ErrorLogger.Print(err)

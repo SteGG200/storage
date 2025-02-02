@@ -2,6 +2,7 @@ package create
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/middleware"
@@ -24,10 +25,11 @@ func New(config *config.Config) http.Handler {
 
 func (router *Mux) createFolder() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		root := router.Config.GetStoragePath()
 		path := r.PathValue("path")
 		foldername := r.FormValue("name")
 
-		err := createFolder(router.Config.GetStoragePath()+"/"+path, foldername)
+		err := createFolder(filepath.Join(root, path), foldername)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

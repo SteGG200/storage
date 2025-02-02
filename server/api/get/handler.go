@@ -1,11 +1,11 @@
-package getitems
+package get
 
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"net/http"
+	"path/filepath"
 
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/exception"
@@ -29,7 +29,9 @@ func New(config *config.Config) http.Handler {
 
 func (router *Mux) serveData() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		items, err := listItems(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
+		root := router.Config.GetStoragePath()
+		path := r.PathValue("path")
+		entries, err := listEntries(filepath.Join(root, path))
 
 		if err != nil {
 			if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotADirectory) {
@@ -40,7 +42,7 @@ func (router *Mux) serveData() http.Handler {
 			return
 		}
 
-		body, err := json.Marshal(items)
+		body, err := json.Marshal(entries)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

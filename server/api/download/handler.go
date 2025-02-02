@@ -2,9 +2,9 @@ package download
 
 import (
 	"errors"
-	"fmt"
 	"io/fs"
 	"net/http"
+	"path/filepath"
 
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/exception"
@@ -28,7 +28,9 @@ func New(config *config.Config) http.Handler {
 
 func (router *Mux) serveData() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		file, err := readFile(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), r.PathValue("path")))
+		root := router.Config.GetStoragePath()
+		path := r.PathValue("path")
+		file, err := readFile(filepath.Join(root, path))
 
 		if err != nil {
 			if errors.Is(err, fs.ErrNotExist) || errors.Is(err, exception.ErrNotAFile) {

@@ -1,7 +1,8 @@
-package getitems
+package get
 
 import (
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/SteGG200/storage/logger"
@@ -15,7 +16,7 @@ type Item struct {
 	IsDirectory bool      `json:"isDirectory"`
 }
 
-func listItems(pattern string) (items []Item, err error) {
+func listEntries(pattern string) (items []Item, err error) {
 	stat, err := os.Stat(pattern)
 
 	if err != nil {
@@ -50,7 +51,7 @@ func listItems(pattern string) (items []Item, err error) {
 		if !info.IsDir() {
 			size = info.Size()
 		} else {
-			dirSize, err := getDirectorySize(pattern + "/" + entry.Name())
+			dirSize, err := getDirectorySize(filepath.Join(pattern, info.Name()))
 
 			if err != nil {
 				logger.ErrorLogger.Print(err)
@@ -92,7 +93,7 @@ func getDirectorySize(pattern string) (size int64, err error) {
 		if !info.IsDir() {
 			size += info.Size()
 		} else {
-			dirSize, err := getDirectorySize(pattern + "/" + entry.Name())
+			dirSize, err := getDirectorySize(filepath.Join(pattern, info.Name()))
 
 			if err != nil {
 				logger.ErrorLogger.Print(err)

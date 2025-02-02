@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/SteGG200/storage/logger"
 )
@@ -16,14 +17,14 @@ func createFolder(path string, foldername string) error {
 		return err
 	}
 
-	_, err = os.Stat(path + "/" + foldername)
+	_, err = os.Stat(filepath.Join(path, foldername))
 
 	if !errors.Is(err, fs.ErrNotExist) {
 		logger.ErrorLogger.Print(fs.ErrExist)
 		return fs.ErrExist
 	}
 
-	err = os.Mkdir(path+"/"+foldername, 0744)
+	err = os.Mkdir(filepath.Join(path, foldername), 0744)
 
 	if err != nil {
 		logger.ErrorLogger.Print(err)

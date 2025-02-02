@@ -3,10 +3,9 @@ package upload
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"net/http"
-	"strings"
+	"path/filepath"
 	"time"
 
 	"github.com/SteGG200/storage/db"
@@ -34,17 +33,18 @@ func New(config *config.Config) http.Handler {
 
 func (router *Mux) sendToken() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.PathValue("path")
+		root := router.Config.GetStoragePath()
+		path := "/" + r.PathValue("path")
 		filename := r.FormValue("name")
 
-		err := db.RemoveUploadSessionByPath(router.Config.GetDatabase(), "/"+path, filename)
+		err := db.RemoveUploadSessionByPath(router.Config.GetDatabase(), path, filename)
 
 		if err != nil {
 			logger.ErrorLogger.Print("Cannot remove old session")
 		}
 
 		data := map[string]any{
-			"path":      "/" + path,
+			"path":      path,
 			"createdAt": time.Now().Unix(),
 			"filename":  filename,
 		}
@@ -65,7 +65,7 @@ func (router *Mux) sendToken() http.Handler {
 			return
 		}
 
-		err = createFile(fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), path), filename)
+		err = createFile(filepath.Join(root, path), filename)
 
 		if err != nil {
 			if errors.Is(err, fs.ErrExist) {
@@ -90,6 +90,7 @@ func (router *Mux) sendToken() http.Handler {
 
 func (router *Mux) uploadData() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		root := router.Config.GetStoragePath()
 		filename := r.FormValue("name")
 		file, header, _ := r.FormFile("file")
 		_, token := utils.GetAuthorizationHeader(r)
@@ -107,8 +108,6 @@ func (router *Mux) uploadData() http.Handler {
 			return
 		}
 
-		path := strings.TrimPrefix(session.Path, "/")
-
 		data := make([]byte, header.Size)
 
 		readSize, err := file.Read(data)
@@ -122,7 +121,7 @@ func (router *Mux) uploadData() http.Handler {
 			logger.WarningLogger.Print("Cannot read entire file.")
 		}
 
-		err = saveFile(data, fmt.Sprintf("%s/%s", router.Config.GetStoragePath(), path), filename)
+		err = saveFile(data, filepath.Join(root, session.Path), filename)
 
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"net/http"
+	"path/filepath"
 
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/middleware"
@@ -26,6 +27,7 @@ func New(config *config.Config) http.Handler {
 
 func (router *Mux) removeItem() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		root := router.Config.GetStoragePath()
 		path := r.PathValue("path")
 
 		if path == "" {
@@ -33,7 +35,7 @@ func (router *Mux) removeItem() http.Handler {
 			return
 		}
 
-		err := removeItem(router.Config.GetStoragePath() + "/" + path)
+		err := removeItem(filepath.Join(root, path))
 
 		if err != nil {
 			if errors.Is(err, fs.ErrNotExist) {
