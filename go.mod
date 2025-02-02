@@ -9,4 +9,5 @@ require (
 	github.com/gwenn/yacr v0.0.0-20200110180258-a66d8c42d0ff // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.24 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
 )

@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/SteGG200/storage/server/api/auth"
 	"github.com/SteGG200/storage/server/api/create"
 	"github.com/SteGG200/storage/server/api/download"
 	"github.com/SteGG200/storage/server/api/getitems"
@@ -28,6 +29,7 @@ func NewRouter(config *config.Config) (router *http.ServeMux) {
 	router.Handle("GET /get/", http.StripPrefix("/get", getitems.New(config)))
 	// Search
 	// Authentication
+	router.Handle("POST /auth/", http.StripPrefix("/auth", auth.New(config)))
 
 	return
 }
