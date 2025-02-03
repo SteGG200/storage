@@ -3,18 +3,10 @@ package get
 import (
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server/exception"
 )
-
-type Item struct {
-	Name        string    `json:"name"`
-	Size        int64     `json:"size"`
-	Date        time.Time `json:"date"`
-	IsDirectory bool      `json:"isDirectory"`
-}
 
 func listEntries(pattern string) (items []Item, err error) {
 	stat, err := os.Stat(pattern)
