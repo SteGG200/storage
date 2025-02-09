@@ -35,7 +35,6 @@ func main() {
 	}
 
 	serverConfigs := []config.ConfigFunc{
-		config.SetVerbose(),
 		config.SetStoragePath(*storagePath),
 	}
 
