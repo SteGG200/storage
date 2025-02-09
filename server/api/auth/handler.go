@@ -135,5 +135,7 @@ func (router *Mux) login() http.Handler {
 }
 
 func setMiddleware(handler http.Handler) http.Handler {
-	return middleware.Chain(handler)
+	return middleware.Chain(handler,
+		validation,
+	)
 }
