@@ -9,11 +9,20 @@ import (
 	"github.com/SteGG200/storage/server/utils"
 )
 
+/*
+SetAuthorization middleware sets the authorization for specific paths.
+
+Params:
+
+	next http.Handler // The next handler in the middleware chain.
+	pathValue string   // The path value to extract the authorization token from.
+	database *db.DB   // The database instance.
+*/
 func SetAuthorization(next http.Handler, pathValue string, database *db.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		typeToken, token := utils.GetAuthorizationHeader(r)
 
-		if typeToken != "Bearer" && token != "" {
+		if token != "" && typeToken != "Bearer" {
 			http.Error(w, "Invalid Authorization", http.StatusUnauthorized)
 			return
 		}

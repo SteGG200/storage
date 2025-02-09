@@ -53,21 +53,27 @@ func main() {
 
 	var newVersion string
 
+	// Apply each schema file to the database
 	for _, version := range versions {
 		if currentVersion == "" || version > currentVersion {
 			sqlQuery, err := fs.ReadFile(sqlFiles, version+".sql")
 
 			if err != nil {
-				logger.ErrorLogger.Print("Faile to apply schema %s.sql", version)
+				logger.ErrorLogger.Printf("Faile to apply schema %s.sql", version)
 				logger.ErrorLogger.Fatal(err)
 				return
 			}
 
 			tx, err := db.Begin()
 
+			if err != nil {
+				logger.ErrorLogger.Fatal(err)
+				return
+			}
+
 			if _, err = tx.Exec(string(sqlQuery)); err != nil {
 				tx.Rollback()
-				logger.ErrorLogger.Print("Failed to apply schema %s.sql", version)
+				logger.ErrorLogger.Printf("Failed to apply schema %s.sql", version)
 				logger.ErrorLogger.Fatal(err)
 				return
 			}
@@ -79,6 +85,7 @@ func main() {
 		}
 	}
 
+	// Update version of database
 	if newVersion != currentVersion {
 		if currentVersion == "" {
 			if _, err := db.Exec("INSERT INTO version(version) VALUES (?)", newVersion); err != nil {
@@ -94,6 +101,14 @@ func main() {
 	}
 }
 
+/*
+getSchemaFiles reads all SQL schema files from the embedded filesystem and returns their versions.
+
+Returns:
+
+	[]string // The versions of the schema files.
+	error // An error if any occurred during the file reading process.
+*/
 func getSchemaFiles() (versions []string, err error) {
 	files, err := fs.ReadDir(sqlFiles, ".")
 

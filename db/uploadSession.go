@@ -7,6 +7,9 @@ import (
 	"github.com/SteGG200/storage/logger"
 )
 
+/*
+SaveUploadSession saves an upload session into the database.
+*/
 func SaveUploadSession(db *DB, session map[string]any) error {
 	query := `
 	INSERT INTO upload_session 
@@ -22,6 +25,10 @@ func SaveUploadSession(db *DB, session map[string]any) error {
 	return nil
 }
 
+/*
+GetUploadSession retrieves an upload session by its token from the database.
+If no session is found, it returns nil and nil.
+*/
 func GetUploadSession(db *DB, tokenString string) (result *UploadSession, err error) {
 	query := `
 	SELECT path, filename, created_at 
@@ -42,6 +49,9 @@ func GetUploadSession(db *DB, tokenString string) (result *UploadSession, err er
 	return
 }
 
+/*
+RemoveUploadSessionByToken removes an upload session by its token from the database.
+*/
 func RemoveUploadSessionByToken(db *DB, tokenString string) error {
 	query := `
 	DELETE FROM upload_session 
@@ -57,6 +67,9 @@ func RemoveUploadSessionByToken(db *DB, tokenString string) error {
 	return nil
 }
 
+/*
+RemoveUploadSessionByPath removes all upload sessions by their path and filename from the database.
+*/
 func RemoveUploadSessionByPath(db *DB, path string, filename string) error {
 	query := `
 	DELETE FROM upload_session 

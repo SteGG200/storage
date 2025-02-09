@@ -13,6 +13,18 @@ type DB struct {
 	*sqlx.DB
 }
 
+/*
+New creates a new database connection.
+
+Params:
+
+	dbFilePath string // The path to the SQLite database file.
+
+Returns:
+
+	*DB // The new database connection.
+	error // An error if any occurred during the database connection process.
+*/
 func New(dbFilePath string) (db *DB, err error) {
 	connection, err := sqlx.Connect("sqlite3", dbFilePath)
 
@@ -30,6 +42,14 @@ func New(dbFilePath string) (db *DB, err error) {
 	return
 }
 
+/*
+GetVersion retrieves the current version of the database.
+
+Returns:
+
+	string // The current version of the database.
+	error // An error if any occurred during the version retrieval process.
+*/
 func (db *DB) GetVersion() (version string, err error) {
 	query := "SELECT version FROM version"
 	row := db.QueryRow(query)

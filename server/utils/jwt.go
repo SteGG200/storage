@@ -9,6 +9,18 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+/*
+GenerateToken generates a JSON Web Token (JWT) with the provided data.
+
+Params:
+
+	data map[string]any // The data to be included in the JWT claims.
+
+Returns:
+
+	typeToken string // The generated JWT token.
+	err error // An error if any occurred during the token generation process.
+*/
 func GenerateToken(data map[string]any) (tokenString string, err error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims(data))
 
@@ -29,6 +41,18 @@ func GenerateToken(data map[string]any) (tokenString string, err error) {
 	return tokenString, nil
 }
 
+/*
+ParseToken parses a JSON Web Token (JWT) and returns its data.
+
+Params:
+
+	tokenString string // The JWT token to parse.
+
+Returns:
+
+	map[string]any // The parsed data.
+	err error // An error if any occurred during the token parsing process.
+*/
 func ParseToken(tokenString string) (map[string]any, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {

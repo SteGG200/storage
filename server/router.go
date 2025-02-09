@@ -12,6 +12,7 @@ import (
 	"github.com/SteGG200/storage/server/config"
 )
 
+// NewRouter creates a new HTTP router with all the API endpoints
 func NewRouter(config *config.Config) (router *http.ServeMux) {
 	router = http.NewServeMux()
 

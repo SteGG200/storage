@@ -15,6 +15,18 @@ type Server struct {
 	config *config.Config
 }
 
+/*
+New creates a new instance of Server with the provided database and optional configuration functions.
+
+Params:
+
+	  db *db.DB // The database instance.
+		configs...config.ConfigFunc // Optional configuration functions.
+
+Returns:
+
+	*Server // A new instance of Server with the provided database and optional configuration functions.
+*/
 func New(db *db.DB, configs ...config.ConfigFunc) (server *Server) {
 	server = &Server{
 		http: &http.Server{
@@ -31,6 +43,13 @@ func New(db *db.DB, configs ...config.ConfigFunc) (server *Server) {
 	return
 }
 
+/*
+Start starts the server and listens on the specified port.
+
+Params:
+
+	port string // The port to listen on.
+*/
 func (server *Server) Start(port string) error {
 	server.http.Addr = fmt.Sprintf(":%s", port)
 	logger.InfoLogger.Printf("Listening on port %s", port)

@@ -9,6 +9,13 @@ import (
 
 const cost = 15
 
+/*
+HashPassword hashes the provided password using bcrypt.
+
+Params:
+
+	password string // The password to hash.
+*/
 func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), cost)
 
@@ -19,6 +26,14 @@ func HashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
+/*
+VerifyPassword verifies that the provided password matches the hashed password.
+
+Params:
+
+	password string // The provided password.
+	hashedPassword string // The hashed password.
+*/
 func VerifyPassword(password, hashedPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 

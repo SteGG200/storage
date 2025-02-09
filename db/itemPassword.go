@@ -2,6 +2,9 @@ package db
 
 import "github.com/SteGG200/storage/logger"
 
+/*
+CheckIfPathHasAuth checks if a given path requires authentication to access	.
+*/
 func CheckIfPathHasAuth(db *DB, path string) (bool, error) {
 	query := `
   SELECT id 
@@ -21,6 +24,9 @@ func CheckIfPathHasAuth(db *DB, path string) (bool, error) {
 	return rows.Next(), nil
 }
 
+/*
+CreateAuthForPath inserts a new path with the given password into the database
+*/
 func CreateAuthForPath(db *DB, path string, password string) error {
 	query := `
 	INSERT INTO item_password (path, password)
@@ -37,6 +43,9 @@ func CreateAuthForPath(db *DB, path string, password string) error {
 	return nil
 }
 
+/*
+GetPasswordOfPath retrieves the password for a given path from the database.
+*/
 func GetPasswordOfPath(db *DB, path string) (string, error) {
 	query := `
 	SELECT password

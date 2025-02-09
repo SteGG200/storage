@@ -10,6 +10,7 @@ import (
 
 const MAX_ID = 10000
 
+// SetLog middleware logs the incoming requests and their corresponding response times.
 func SetLog(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := rand.Intn(MAX_ID)

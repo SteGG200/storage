@@ -6,6 +6,19 @@ import (
 	"github.com/SteGG200/storage/server/exception"
 )
 
+/*
+VerifyUploadSession verifies that the provided upload session token is valid.
+
+Params:
+
+	database *db.DB // The database connection.
+	tokenString string // The upload session token to verify.
+
+Returns:
+
+	*db.UploadSession // The validated upload session, or nil if the token is invalid.
+	error // An error if any occurred during the session verification process.
+*/
 func VerifyUploadSession(database *db.DB, tokenString string) (session *db.UploadSession, err error) {
 	data, err := ParseToken(tokenString)
 

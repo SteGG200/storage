@@ -74,11 +74,13 @@ func (router *Mux) login() http.Handler {
 			return
 		}
 
+		// Check if the item needs to authenticate
 		if !doesExist {
 			http.Error(w, "Item doesn't need authentication", http.StatusContinue)
 			return
 		}
 
+		// Verify the password is correct
 		hashedPassword, err := db.GetPasswordOfPath(router.Config.GetDatabase(), path)
 
 		if err != nil {
@@ -93,6 +95,7 @@ func (router *Mux) login() http.Handler {
 			return
 		}
 
+		// Generate a new jwt token that is authenticated
 		var data map[string]any
 
 		_, token := utils.GetAuthorizationHeader(r)

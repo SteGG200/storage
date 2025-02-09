@@ -2,6 +2,14 @@ package utils
 
 import "fmt"
 
+/*
+VerifyAuthorizationToken checks if the provided authorization token is valid and has access to the current path.
+
+Params:
+
+	tokenString string // The authorization token to verify.
+	path string // The path to check access for.
+*/
 func VerifyAuthorizationToken(tokenString string, path string) (bool, error) {
 	if len(tokenString) == 0 {
 		return false, nil
@@ -18,7 +26,7 @@ func VerifyAuthorizationToken(tokenString string, path string) (bool, error) {
 		currentPathStr, ok := currentPath.(string)
 
 		if !ok {
-			err := fmt.Errorf("Cannot convert path to string")
+			err := fmt.Errorf("cannot convert path to string")
 			return false, err
 		}
 

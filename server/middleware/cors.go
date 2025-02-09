@@ -2,6 +2,7 @@ package middleware
 
 import "net/http"
 
+// SetCORS middleware sets the CORS headers for all responses.
 func SetCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
