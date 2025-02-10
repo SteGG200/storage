@@ -26,7 +26,7 @@ func NewRouter(config *config.Config) (router *http.ServeMux) {
 	// Delete
 	router.Handle("DELETE /remove/", http.StripPrefix("/remove", remove.New(config)))
 
-	// List
+	// List and search
 	router.Handle("GET /get/", http.StripPrefix("/get", get.New(config)))
 	// Rename
 	router.Handle("POST /rename/", http.StripPrefix("/rename", rename.New(config)))
