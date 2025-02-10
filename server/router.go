@@ -8,6 +8,7 @@ import (
 	"github.com/SteGG200/storage/server/api/download"
 	"github.com/SteGG200/storage/server/api/get"
 	"github.com/SteGG200/storage/server/api/remove"
+	"github.com/SteGG200/storage/server/api/rename"
 	"github.com/SteGG200/storage/server/api/upload"
 	"github.com/SteGG200/storage/server/config"
 )
@@ -27,7 +28,8 @@ func NewRouter(config *config.Config) (router *http.ServeMux) {
 
 	// List
 	router.Handle("GET /get/", http.StripPrefix("/get", get.New(config)))
-	// Search
+	// Rename
+	router.Handle("POST /rename/", http.StripPrefix("/rename", rename.New(config)))
 	// Authentication
 	router.Handle("POST /auth/", http.StripPrefix("/auth", auth.New(config)))
 
