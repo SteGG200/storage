@@ -4,4 +4,4 @@ build/
 *.db
 *.db.bak
 *.log
-storage/
+/storage/
