@@ -9,8 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-background: oklch(21.01% 0.0318 264.66);
-  --color-foreground: oklch(96.7% 0.0029 264.54);
+  
 }
 
 /*
