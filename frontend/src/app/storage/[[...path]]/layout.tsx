@@ -1,16 +1,32 @@
+import { listDirectory } from "@/lib/data/list/data"
+import { getQueryClient } from "@/lib/queryClient"
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+
 export default async function StorageLayout({
 	params,
-	login
+	login,
+	content
 }: {
 	params: Promise<{path?: string[]}>,
-	login: React.ReactNode
+	login: React.ReactNode,
+	content: React.ReactNode,
 }) {
-	const path = (await params).path ?? []
+	const path = ((await params).path ?? []).join("/")
+	const queryClient = getQueryClient()
+
+	const isAuthorized = await listDirectory(queryClient, path)
+
 	return(
-		<>
-      <h1>Storage Page</h1>
-      <p>Current Path: {path.join("/")}</p>
-      {login}
-    </>
+		<HydrationBoundary state={dehydrate(queryClient)}>
+      {isAuthorized ? (
+				<>
+					{content}
+				</>
+			) : (
+				<>
+					{login}
+				</>
+			)}
+    </HydrationBoundary>
 	)
 }
