@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
+import AppStoreProvider from "@/components/providers/AppStoreProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,7 +26,9 @@ export default function RootLayout({
         className={`${geistSans.className} dark antialiased`}
       >
         <QueryProvider>
-          {children}
+          <AppStoreProvider>
+            {children}
+          </AppStoreProvider>
         </QueryProvider>
       </body>
     </html>

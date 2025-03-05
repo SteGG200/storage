@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { listOptions } from "@/lib/data/list/options"
+import { useMemo, useState } from "react"
+import { useAppStore } from "./providers/AppStoreProvider"
 
 interface TableContentProps {
 	path: string
@@ -12,6 +14,14 @@ export default function TableContent({
 	path
 }: TableContentProps) {
 	const { data, error } = useQuery(listOptions(path))
+	const { searchResult } = useAppStore((state) => state)
+	const dataToShow = useMemo(() => {
+		// If searchResult is undefined, that means user is not searching -> return default data
+		if (!searchResult){
+			return data
+		}
+		return searchResult
+	}, [searchResult, data])
 
 	return (
 		<Table>
@@ -24,8 +34,8 @@ export default function TableContent({
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{(data && data.length > 0) ? (
-					data.map((item, index) => (
+				{(dataToShow && dataToShow.length > 0) ? (
+					dataToShow.map((item, index) => (
 						<TableRow className="border-b border-gray-700" key={index}>
 							<TableCell>
 								{item.name}
