@@ -1,3 +1,4 @@
+import NewFolderButton from "@/components/button/NewFolderButton"
 import UploadFileButton from "@/components/button/UploadFileButton"
 import Nav from "@/components/Nav"
 import SearchBar from "@/components/SearchBar"
@@ -18,6 +19,7 @@ export default async function ContentPage({
 				<SearchBar path={path}/>
 				<div className="space-x-2">
 					<UploadFileButton path={path}/>
+					<NewFolderButton path={path} />
 				</div>
 			</div>
 			<TableContent path={path}/>
