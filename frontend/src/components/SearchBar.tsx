@@ -5,7 +5,7 @@ import { Input } from "./ui/input";
 import { useAppStore } from "./providers/AppStoreProvider";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
-import { searchOptions } from "@/lib/data/search/options";
+import { searchOptions } from "@/lib/action/search/options";
 
 interface SearchBarProps {
 	path: string

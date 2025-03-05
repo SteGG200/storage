@@ -1,4 +1,4 @@
-import { listDirectory } from "@/lib/data/list"
+import { listDirectory } from "@/lib/action/list"
 import { getQueryClient } from "@/lib/queryClient"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 

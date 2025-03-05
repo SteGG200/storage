@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { FormEvent, useState } from "react";
 import { Input } from "../ui/input";
-import { uploadFile } from "@/lib/data/uploadFile";
+import { uploadFile } from "@/lib/action/uploadFile";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface UploadFileButtonProps {

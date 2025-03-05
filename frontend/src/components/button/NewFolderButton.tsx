@@ -5,7 +5,7 @@ import { Button } from "../ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { FormEvent, useState } from "react"
-import { createFolder } from "@/lib/data/createFolder"
+import { createFolder } from "@/lib/action/createFolder"
 import { useQueryClient } from "@tanstack/react-query"
 
 interface NewFolderButtonProps {
