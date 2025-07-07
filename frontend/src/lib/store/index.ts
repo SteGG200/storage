@@ -6,6 +6,7 @@ const defaultState : States = {
 	currentDonwloadProgress: 0,
 	modifyingItem: undefined,
 	isRenameDialogOpen: false,
+	isDeleteConfirmDialogOpen: false,
 }
 
 export const createAppStore = (
@@ -45,6 +46,13 @@ export const createAppStore = (
 				set(() => {
 					return {
 						isRenameDialogOpen: open
+					}
+				})
+			},
+			setIsDeleteConfirmDialogOpen: (open: boolean) => {
+				set(() => {
+					return {
+						isDeleteConfirmDialogOpen: open
 					}
 				})
 			}

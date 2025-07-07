@@ -13,6 +13,7 @@ import DownloadFileButton from "./button/DownloadFileButton"
 import RenameButton from "./button/RenameButton"
 import RenameDialog from "./dialog/RenameDialog"
 import React from "react"
+import DeleteFileButton from "./button/DeleteFileButton"
 
 interface TableContentProps {
 	path: string
@@ -30,8 +31,6 @@ export default function TableContent({
 		}
 		return searchResult
 	}, [searchResult, data])
-	const [selectedItem, setSelectedItem] = useState<Item | undefined>(undefined)
-	const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
 
 	return (
 		<Table>
@@ -84,10 +83,7 @@ export default function TableContent({
 												<DownloadFileButton path={path} item={item}/>
 											)}
 											<RenameButton item={item}/>
-											<DropdownMenuItem className="hover:bg-gray-700 space-x-2">
-												<Trash2 className="w-4 h-4"/>
-												<span>Delete</span>
-											</DropdownMenuItem>
+											<DeleteFileButton item={item}/>
 										</DropdownMenuContent>
 									</DropdownMenu>
 								</TableCell>

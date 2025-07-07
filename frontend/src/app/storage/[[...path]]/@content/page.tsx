@@ -5,6 +5,7 @@ import DownloadInfoDialog from "@/components/dialog/DownloadInfoDialog"
 import SearchBar from "@/components/SearchBar"
 import TableContent from "@/components/TableContent"
 import RenameDialog from "@/components/dialog/RenameDialog"
+import DeleteConfirmDialog from "@/components/dialog/DeleteConfirmDialog"
 
 export default async function ContentPage({
 	params
@@ -29,6 +30,7 @@ export default async function ContentPage({
 			</div>
 			<DownloadInfoDialog/>
 			<RenameDialog path={path}/>
+			<DeleteConfirmDialog path={path}/>
 		</>
 	)
 }

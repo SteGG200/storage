@@ -34,7 +34,15 @@ interface RenameDialogActions {
 	setIsRenameDialogOpen: (open: boolean) => void
 }
 
-type States = SearchStates & DownloadingStates & TableContentStates & RenameDialogStates
-type Actions = SearchActions & DownloadingActions & TableContentActions & RenameDialogActions
+interface DeleteConfirmDialogStates {
+	isDeleteConfirmDialogOpen: boolean
+}
+
+interface DeleteConfirmDialogActions {
+	setIsDeleteConfirmDialogOpen: (open: boolean) => void
+}
+
+type States = SearchStates & DownloadingStates & TableContentStates & RenameDialogStates & DeleteConfirmDialogStates
+type Actions = SearchActions & DownloadingActions & TableContentActions & RenameDialogActions & DeleteConfirmDialogActions
 
 type AppStoreProps = States & Actions
