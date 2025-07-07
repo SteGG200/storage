@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/fs"
 	"net/http"
+	"net/url"
 	"path/filepath"
 
 	"github.com/SteGG200/storage/server/config"
@@ -29,7 +30,7 @@ func New(config *config.Config) http.Handler {
 func (router *Mux) serveData() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		root := router.Config.GetStoragePath()
-		path := r.PathValue("path")
+		path, _ := url.PathUnescape(r.PathValue("path"))
 		file, err := readFile(filepath.Join(root, path))
 
 		if err != nil {

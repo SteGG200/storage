@@ -5,10 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { listOptions } from "@/lib/action/list/options"
 import { useMemo } from "react"
 import { useAppStore } from "./providers/AppStoreProvider"
-import { Download, Edit, File, Folder, MoreVertical, Trash2 } from "lucide-react"
+import { Edit, File, Folder, MoreVertical, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
 import { Button } from "./ui/button"
+import DownloadFileButton from "./button/DownloadFileButton"
 
 interface TableContentProps {
 	path: string
@@ -74,10 +75,7 @@ export default function TableContent({
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="bg-gray-800 text-gray-100 border-gray-700">
 										{!item.isDirectory && (
-											<DropdownMenuItem className="hover:bg-gray-700 space-x-2">
-												<Download className="w-4 h-4"/>
-												<span>Download</span>
-											</DropdownMenuItem>
+											<DownloadFileButton path={path} item={item}/>
 										)}
 										<DropdownMenuItem className="hover:bg-gray-700 space-x-2">
 											<Edit className="w-4 h-4"/>

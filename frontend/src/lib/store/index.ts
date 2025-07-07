@@ -1,19 +1,35 @@
 import { createStore } from "zustand"
 
-const defaultState : SearchState = {
-	searchResult: []
+const defaultState : States = {
+	searchResult: [],
+	isDownloading: false,
+	currentDonwloadProgress: 0
 }
 
 export const createAppStore = (
-	initState: SearchState = defaultState
+	initState: States = defaultState
 ) => {
 	return createStore<AppStoreProps>()((set) => {
 		return {
 			...initState,
 			setSearchResult: (newResult: SearchResult) => {
 				set(() => {
-					if (!newResult) return { searchResult: undefined}
+					if (!newResult) return { searchResult: undefined }
 					return { searchResult: newResult.map((item) => ({...item}))}
+				})
+			},
+			setIsDownloading: (state: boolean) => {
+				set(() => {
+					return {
+						isDownloading: state
+					}
+				})
+			},
+			setCurrentDownloadProgress: (progress: number) => {
+				set(() => {
+					return {
+						currentDonwloadProgress: progress
+					}
 				})
 			}
 		}
