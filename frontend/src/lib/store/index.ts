@@ -3,7 +3,9 @@ import { createStore } from "zustand"
 const defaultState : States = {
 	searchResult: [],
 	isDownloading: false,
-	currentDonwloadProgress: 0
+	currentDonwloadProgress: 0,
+	modifyingItem: undefined,
+	isRenameDialogOpen: false,
 }
 
 export const createAppStore = (
@@ -29,6 +31,20 @@ export const createAppStore = (
 				set(() => {
 					return {
 						currentDonwloadProgress: progress
+					}
+				})
+			},
+			setModifyingItem: (item: Item | undefined) => {
+				set(() => {
+					return {
+						modifyingItem: item
+					}
+				})
+			},
+			setIsRenameDialogOpen: (open: boolean) => {
+				set(() => {
+					return {
+						isRenameDialogOpen: open
 					}
 				})
 			}

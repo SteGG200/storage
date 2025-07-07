@@ -1,6 +1,6 @@
 type SearchResult = Item[] | undefined
 
-interface SearchState {
+interface SearchStates {
 	searchResult: SearchResult
 }
 
@@ -8,7 +8,7 @@ interface SearchActions {
 	setSearchResult: (newResult: SearchResult) => void
 }
 
-interface DownloadingState {
+interface DownloadingStates {
 	isDownloading: boolean
 	currentDonwloadProgress: number
 }
@@ -18,7 +18,23 @@ interface DownloadingActions {
 	setCurrentDownloadProgress: (progress: number) => void
 }
 
-type States = SearchState & DownloadingState
-type Actions = SearchActions & DownloadingActions
+interface TableContentStates {
+	modifyingItem: Item | undefined
+}
+
+interface TableContentActions {
+	setModifyingItem: (item: Item | undefined) => void
+}
+
+interface RenameDialogStates {
+	isRenameDialogOpen: boolean
+}
+
+interface RenameDialogActions {
+	setIsRenameDialogOpen: (open: boolean) => void
+}
+
+type States = SearchStates & DownloadingStates & TableContentStates & RenameDialogStates
+type Actions = SearchActions & DownloadingActions & TableContentActions & RenameDialogActions
 
 type AppStoreProps = States & Actions

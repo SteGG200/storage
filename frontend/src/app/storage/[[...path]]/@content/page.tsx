@@ -1,9 +1,10 @@
 import NewFolderButton from "@/components/button/NewFolderButton"
 import UploadFileButton from "@/components/button/UploadFileButton"
 import Nav from "@/components/Nav"
-import DownloadInfoDialog from "@/components/progressDialog/DownloadInfoDialog"
+import DownloadInfoDialog from "@/components/dialog/DownloadInfoDialog"
 import SearchBar from "@/components/SearchBar"
 import TableContent from "@/components/TableContent"
+import RenameDialog from "@/components/dialog/RenameDialog"
 
 export default async function ContentPage({
 	params
@@ -27,6 +28,7 @@ export default async function ContentPage({
 				<TableContent path={path}/>
 			</div>
 			<DownloadInfoDialog/>
+			<RenameDialog path={path}/>
 		</>
 	)
 }
