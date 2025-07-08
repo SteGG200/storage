@@ -31,7 +31,7 @@ func NewRouter(config *config.Config) (router *http.ServeMux) {
 	// Rename
 	router.Handle("POST /rename/", http.StripPrefix("/rename", rename.New(config)))
 	// Authentication
-	router.Handle("POST /auth/", http.StripPrefix("/auth", auth.New(config)))
+	router.Handle("/auth/", http.StripPrefix("/auth", auth.New(config)))
 
 	return
 }

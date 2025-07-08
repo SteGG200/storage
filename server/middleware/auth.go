@@ -23,7 +23,7 @@ func SetAuthorization(next http.Handler, pathValue string, database *db.DB) http
 		typeToken, token := utils.GetAuthorizationHeader(r)
 
 		if token != "" && typeToken != "Bearer" {
-			http.Error(w, "Invalid Authorization", http.StatusUnauthorized)
+			http.Error(w, "Invalid Token", http.StatusBadRequest)
 			return
 		}
 

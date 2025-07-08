@@ -3,7 +3,9 @@ package auth
 import (
 	"encoding/json"
 	"net/http"
+	"path/filepath"
 	"slices"
+	"strings"
 
 	"github.com/SteGG200/storage/db"
 	"github.com/SteGG200/storage/server/config"
@@ -21,8 +23,9 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("/register/{path...}", router.register())
-	router.Handle("/login/{path...}", router.login())
+	router.Handle("POST /register/{path...}", router.register())
+	router.Handle("POST /login/{path...}", router.login())
+	router.Handle("GET /check/{path...}", router.check())
 
 	return setMiddleware(router)
 }
@@ -131,6 +134,55 @@ func (router *Mux) login() http.Handler {
 		json.NewEncoder(w).Encode(map[string]any{
 			"token": token,
 		})
+	})
+}
+
+func (router *Mux) check() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		typeToken, token := utils.GetAuthorizationHeader(r)
+
+		if token != "" && typeToken != "Bearer" {
+			http.Error(w, "Invalid Token", http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+
+		path := r.PathValue("path")
+
+		allDirectories := append([]string{""}, strings.Split(path, "/")...)
+		currentPath := "/"
+
+		for _, directory := range allDirectories {
+			currentPath = filepath.Join(currentPath, directory)
+			doesNeedAuth, err := db.CheckIfPathHasAuth(router.Config.GetDatabase(), currentPath)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if !doesNeedAuth {
+				continue
+			}
+
+			isAuthenticated, err := utils.VerifyAuthorizationToken(token, currentPath)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if !isAuthenticated {
+				w.WriteHeader(http.StatusUnauthorized)
+				json.NewEncoder(w).Encode(map[string]any{
+					"unauthorizedPath": currentPath,
+				})
+				return
+			}
+		}
+
+		w.WriteHeader(http.StatusOK)
 	})
 }
 
