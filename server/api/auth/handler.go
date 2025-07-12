@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"github.com/SteGG200/storage/db"
@@ -139,12 +138,21 @@ func (router *Mux) login() http.Handler {
 			data["path"] = make([]string, 0)
 		}
 
-		if slices.Contains(data["path"].([]string), path) {
-			http.Error(w, "Item is already authenticated", http.StatusContinue)
-			return
+		for _, currentPath := range data["path"].([]any) {
+			currentPathToStr, ok := currentPath.(string)
+
+			if !ok {
+				http.Error(w, "There is an error on server!", http.StatusInternalServerError)
+				return
+			}
+
+			if currentPathToStr == path {
+				http.Error(w, "User already had access to this directory!", http.StatusContinue)
+				return
+			}
 		}
 
-		data["path"] = append(data["path"].([]string), path)
+		data["path"] = append(data["path"].([]any), path)
 
 		token, err = utils.GenerateToken(data)
 
@@ -212,7 +220,7 @@ func (router *Mux) check() http.Handler {
 
 func (router *Mux) checkNeedAuth() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.PathValue("path")
+		path := "/" + r.PathValue("path")
 
 		doesNeedAuth, err := db.CheckIfPathHasAuth(router.Config.GetDatabase(), path)
 
