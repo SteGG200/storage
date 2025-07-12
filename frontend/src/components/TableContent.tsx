@@ -45,50 +45,48 @@ export default function TableContent({
 			<TableBody>
 				{(dataToShow && dataToShow.length > 0) ? (
 					dataToShow.map((item, index) => (
-						<React.Fragment key={index}>
-							<TableRow className="border-b border-gray-700">
-								<TableCell>
-									<div className="flex items-center space-x-2">
-										{item.isDirectory ? (
-											<>
-											<Folder className="h-4 w-4 text-blue-400"/>
-												<Link className="hover:underline" href={`/storage/${item.path}`}>
-													{item.name}
-												</Link>
-											</>
-										) : (
-											<>
-												<File className="h-4 w-4"/>
-												<p>{item.name}</p>
-											</>
+						<TableRow key={index} className="border-b border-gray-700">
+							<TableCell>
+								<div className="flex items-center space-x-2">
+									{item.isDirectory ? (
+										<>
+										<Folder className="h-4 w-4 text-blue-400"/>
+											<Link className="hover:underline" href={`/storage/${item.path}`}>
+												{item.name}
+											</Link>
+										</>
+									) : (
+										<>
+											<File className="h-4 w-4"/>
+											<p>{item.name}</p>
+										</>
+									)}
+								</div>
+							</TableCell>
+							<TableCell>
+								{item.size}
+							</TableCell>
+							<TableCell>
+								{item.date}
+							</TableCell>
+							<TableCell>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="ghost" className="h-8 w-8 ring-0">
+											<span className="sr-only">Open menu</span>
+											<MoreVertical className="h-4 w-4"/>
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end" className="bg-gray-800 text-gray-100 border-gray-700">
+										{!item.isDirectory && (
+											<DownloadFileButton path={path} item={item}/>
 										)}
-									</div>
-								</TableCell>
-								<TableCell>
-									{item.size}
-								</TableCell>
-								<TableCell>
-									{item.date}
-								</TableCell>
-								<TableCell>
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button variant="ghost" className="h-8 w-8 ring-0">
-												<span className="sr-only">Open menu</span>
-												<MoreVertical className="h-4 w-4"/>
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end" className="bg-gray-800 text-gray-100 border-gray-700">
-											{!item.isDirectory && (
-												<DownloadFileButton path={path} item={item}/>
-											)}
-											<RenameButton item={item}/>
-											<DeleteFileButton item={item}/>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								</TableCell>
-							</TableRow>
-						</React.Fragment>
+										<RenameButton item={item}/>
+										<DeleteFileButton item={item}/>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</TableCell>
+						</TableRow>
 					))
 				) : (
 					<TableRow>

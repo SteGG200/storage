@@ -1,16 +1,9 @@
 import { queryOptions } from "@tanstack/react-query"
+import { listDirectory } from "."
 
 export const listOptions = (path : string) => {
 	return queryOptions({
 		queryKey: ["get", path],
-		queryFn: async () : Promise<Item[]> => {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/get/${path}`)
-
-			if (!response.ok){
-        throw response.status
-      }
-
-			return response.json();
-		},
+		queryFn: async () => await listDirectory(path)
 	})
 }

@@ -1,6 +1,7 @@
 'use server'
 
-import { cookies } from "next/headers"
+import { getToken, saveToken } from "@/lib/utils/server"
+
 
 export const checkIsAuthorized = async (
 	path: string
@@ -10,12 +11,11 @@ export const checkIsAuthorized = async (
 	isAuthorized: false,
 	unauthorizedPath: string
 }> => {
-	const cookieStore = await cookies()
-	const token = cookieStore.get('token')
+	const token = await getToken()
 
 	const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/check/${path}`, {
 		headers: {
-			"Authorization": `Bearer ${token?.value ?? ""}`
+			"Authorization": `Bearer ${token}`
 		}
 	})
 
@@ -52,6 +52,5 @@ export const login = async (
 	}
 
 	const data : { token : string } = await response.json()
-	const cookieStore = await cookies()
-	cookieStore.set('token', data.token)
+	await saveToken(data.token)
 }

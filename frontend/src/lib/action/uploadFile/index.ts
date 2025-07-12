@@ -1,4 +1,4 @@
-import { sleep } from "@/lib/utils"
+import { sleep } from "@/lib/utils/client"
 
 const CHUNK_SIZE = 1024 * 1024 * 5
 

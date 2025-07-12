@@ -1,17 +1,16 @@
 'use server'
 
-import type { QueryClient } from "@tanstack/react-query"
-import { listOptions } from "./options"
+import { getToken } from "@/lib/utils/server"
 
-// Return false whenever the query is unauthorized
-export const listDirectory = async (queryClient: QueryClient, path: string) : Promise<boolean> =>  {
-	try{
-		await queryClient.fetchQuery(listOptions(path))
-		return true
-	}catch(statusCode) {
-		if (statusCode === 401){
-			return false
+export const listDirectory = async (path: string) =>  {
+	const token = await getToken()
+
+	const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/get/${path}`, {
+		headers: {
+			"Authorization": `Bearer ${token}`
 		}
-		return true
-	}
+	})
+
+	const data : Item[] = await response.json()
+	return data
 }

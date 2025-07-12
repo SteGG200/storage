@@ -1,16 +1,13 @@
 import { queryOptions } from "@tanstack/react-query"
+import { searchAction } from "."
 
 export const searchOptions = (
 	path: string,
-  searchText: string
+  searchValue: string
 ) => {
 	return queryOptions({
-		queryKey: ["search", path, searchText],
-		queryFn: async (): Promise<Item[]> => {
-			const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/get/search/${path}?q=${searchText}`)
-
-			return response.json()
-		},
-		enabled: searchText !== ""
+		queryKey: ["search", path, searchValue],
+		queryFn: async () =>  await searchAction(path, searchValue),
+		enabled: searchValue !== ""
 	})
 }

@@ -1,4 +1,4 @@
-import { sleep } from "@/lib/utils"
+import { sleep } from "@/lib/utils/client"
 import { downloadChunk, generateToken, getSizeOfFile, removeOldTmpFile } from "./server"
 
 const CHUNK_SIZE = 1024 * 1024 * 5
