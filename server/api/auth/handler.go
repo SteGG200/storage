@@ -23,17 +23,26 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("POST /register/{path...}", router.register())
+	router.Handle("POST /setPassword/{path...}", router.setPassword())
 	router.Handle("POST /login/{path...}", router.login())
 	router.Handle("GET /check/{path...}", router.check())
+	router.Handle("GET /checkNeedAuth/{path...}", router.checkNeedAuth())
 
 	return setMiddleware(router)
 }
 
-func (router *Mux) register() http.Handler {
+func (router *Mux) setPassword() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := "/" + r.PathValue("path")
+		oldPassword := r.FormValue("oldPassword")
 		password := r.FormValue("password")
+
+		hashedPassword, err := utils.HashPassword(password)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		doesExist, err := db.CheckIfPathHasAuth(router.Config.GetDatabase(), path)
 
@@ -43,22 +52,37 @@ func (router *Mux) register() http.Handler {
 		}
 
 		if doesExist {
-			http.Error(w, "Item already has authentication", http.StatusConflict)
-			return
-		}
+			if oldPassword == "" {
+				http.Error(w, "Require old password to change password", http.StatusBadRequest)
+				return
+			}
+			hashedOldPassword, err := db.GetPasswordOfPath(router.Config.GetDatabase(), path)
 
-		hashedPassword, err := utils.HashPassword(password)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+			isMatch := utils.VerifyPassword(oldPassword, hashedOldPassword)
 
-		err = db.CreateAuthForPath(router.Config.GetDatabase(), path, hashedPassword)
+			if !isMatch {
+				http.Error(w, "Old password is incorrect!", http.StatusForbidden)
+				return
+			}
 
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			err = db.ChangePasswordOfPath(router.Config.GetDatabase(), path, hashedPassword)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+		} else {
+			err = db.CreateAuthForPath(router.Config.GetDatabase(), path, hashedPassword)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
 		w.Write([]byte("OK"))
@@ -183,6 +207,25 @@ func (router *Mux) check() http.Handler {
 		}
 
 		w.WriteHeader(http.StatusOK)
+	})
+}
+
+func (router *Mux) checkNeedAuth() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.PathValue("path")
+
+		doesNeedAuth, err := db.CheckIfPathHasAuth(router.Config.GetDatabase(), path)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(map[string]any{
+			"needAuth": doesNeedAuth,
+		})
 	})
 }
 

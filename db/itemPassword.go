@@ -43,6 +43,23 @@ func CreateAuthForPath(db *DB, path string, password string) error {
 	return nil
 }
 
+func ChangePasswordOfPath(db *DB, path string, password string) error {
+	query := `
+	UPDATE item_password
+	SET password = ?
+	WHERE path = ?
+	`
+
+	_, err := db.Exec(query, password, path)
+
+	if err != nil {
+		logger.ErrorLogger.Print(err)
+		return err
+	}
+
+	return nil
+}
+
 /*
 GetPasswordOfPath retrieves the password for a given path from the database.
 */
