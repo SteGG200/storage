@@ -1,4 +1,5 @@
-import { listDirectory } from "@/lib/action/list"
+import AuthorizationComponent from "@/components/AuthorizationComponent"
+import { checkIsAuthorizedOptions } from "@/lib/action/auth/queryOptions"
 import { getQueryClient } from "@/lib/queryClient"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 
@@ -14,19 +15,11 @@ export default async function StorageLayout({
 	const path = ((await params).path ?? []).join("/")
 	const queryClient = getQueryClient()
 
-	const isAuthorized = await listDirectory(queryClient, path)
+	await queryClient.prefetchQuery(checkIsAuthorizedOptions(path))
 
 	return(
 		<HydrationBoundary state={dehydrate(queryClient)}>
-      {isAuthorized ? (
-				<>
-					{content}
-				</>
-			) : (
-				<>
-					{login}
-				</>
-			)}
+      <AuthorizationComponent path={path} login={login} content={content}/>
     </HydrationBoundary>
 	)
 }
