@@ -17,7 +17,7 @@ export default function DeleteFileButton({
 			setIsDeleteConfirmDialogOpen(true)
 		}}>
 			<Trash2 className="w-4 h-4"/>
-			<span>Delete</span>
+			<span>Remove</span>
 		</DropdownMenuItem>
 	)
 }

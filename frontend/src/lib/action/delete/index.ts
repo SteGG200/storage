@@ -15,6 +15,9 @@ export const deleteItem = async (
 	})
 
 	if(!response.ok){
+		if(response.status === 401) {
+			throw new Error("You have to log in this folder first to remove it")
+		}
 		const msg = await response.text()
 		throw new Error(msg)
 	}
