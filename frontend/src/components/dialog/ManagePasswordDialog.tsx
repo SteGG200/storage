@@ -47,14 +47,14 @@ export default function ManagePasswordDialog({
 							<span className="text-sm text-green-400">This directory is currently password protected</span>
 						</div>
 						<div className="space-y-3">
-							<Button className="bg-orange-600 hover:bg-orange-700 text-white w-full flex items-center justify-between" onClick={openChangePasswordDialog}>
+							<Button className="bg-orange-400 hover:bg-orange-500 text-white w-full flex items-center justify-between" onClick={openChangePasswordDialog}>
 								<div className="flex items-center">
 									<Edit className="mr-2 h-4 w-4"/>
 									Change Password
 								</div>
 								<ChevronRight className="h-4 w-4"/>
 							</Button>
-							<Button className="bg-red-600 hover:bg-red-700 text-white w-full flex items-center justify-between" onClick={openRemovePasswordDialog}>
+							<Button className="bg-red-700 hover:bg-red-800 text-white w-full flex items-center justify-between" onClick={openRemovePasswordDialog}>
 								<div className="flex items-center">
 									<ShieldOff className="mr-2 h-4 w-4" />
 									Remove Password Protection

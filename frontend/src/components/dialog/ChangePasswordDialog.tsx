@@ -88,7 +88,7 @@ export default function ChangePasswordDialog({
 							<ArrowLeft className="mr-2 h-4 w-4"/>
 							Back
 						</Button>
-						<Button type="submit" className="flex-1 bg-orange-600 hover:bg-orange-700 text-white" disabled={isLoading}>
+						<Button type="submit" className="flex-1 bg-orange-400 hover:bg-orange-500 text-white" disabled={isLoading}>
 							Update Password
 						</Button>
 					</div>

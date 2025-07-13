@@ -1,8 +1,7 @@
 'use client'
 import { Upload } from "lucide-react";
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { FormEvent, useState } from "react";
 import { Input } from "../ui/input";
 import { uploadFile } from "@/lib/action/uploadFile";
@@ -96,7 +95,7 @@ export default function UploadFileButton({
 						<Button
 							type="submit"
 							disabled={!selectedFile || !newFileName.trim()}
-							className="bg-blue-600 hover:bg-blue-700 text-white"
+							className="bg-blue-600 hover:bg-blue-700 text-white w-full"
 						>
 							Upload
 						</Button>

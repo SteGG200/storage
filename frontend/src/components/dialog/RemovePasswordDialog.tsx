@@ -70,7 +70,7 @@ export default function RemovePasswordDialog({
 							<ArrowLeft className="mr-2 h-4 w-4"/>
 							Back
 						</Button>
-						<Button type="submit" className="flex-1 bg-orange-600 hover:bg-orange-700 text-white" disabled={isLoading}>
+						<Button type="submit" className="flex-1 bg-red-700 hover:bg-red-800 text-white" disabled={isLoading}>
 							<ShieldOff className="mr-2 h-4 w-4" />
 							Remove Password
 						</Button>

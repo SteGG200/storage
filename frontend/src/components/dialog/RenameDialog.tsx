@@ -62,7 +62,7 @@ export default function RenameDialog({
 					{errorMessage.length > 0 && (
 						<p className="text-red-500">{errorMessage}</p>
 					)}
-					<Button type="submit" className="bg-green-600 hover:bg-green-700 text-white">
+					<Button type="submit" className="bg-green-600 hover:bg-green-700 text-white w-full">
 						Submit
 					</Button>
         </form>
