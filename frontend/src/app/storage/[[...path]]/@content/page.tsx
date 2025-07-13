@@ -9,6 +9,9 @@ import DeleteConfirmDialog from "@/components/dialog/DeleteConfirmDialog"
 import { getQueryClient } from "@/lib/queryClient"
 import { listOptions } from "@/lib/action/list/options"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+import { checkNeedAuth } from "@/lib/action/auth"
+import ManagePasswordDialog from "@/components/dialog/ManagePasswordDialog"
+import SetNewPasswordDialog from "@/components/dialog/SetNewPasswordDialog"
 
 export default async function ContentPage({
 	params
@@ -16,6 +19,8 @@ export default async function ContentPage({
 	params: Promise<{path?: string[]}>
 }) {
 	const path = ((await params).path ?? []).join('/')
+	const needAuth = await checkNeedAuth(path)
+
 	const queryClient = getQueryClient()
 	await queryClient.prefetchQuery(listOptions(path))
 
@@ -29,6 +34,11 @@ export default async function ContentPage({
 					<div className="space-x-2">
 						<UploadFileButton path={path}/>
 						<NewFolderButton path={path} />
+						{needAuth ? (
+							<ManagePasswordDialog path={path}/>
+						): (
+							<SetNewPasswordDialog path={path}/>
+						)}
 					</div>
 				</div>
 				<TableContent path={path}/>

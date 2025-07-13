@@ -26,6 +26,7 @@ func New(config *config.Config) http.Handler {
 	router.Handle("POST /login/{path...}", router.login())
 	router.Handle("GET /check/{path...}", router.check())
 	router.Handle("GET /checkNeedAuth/{path...}", router.checkNeedAuth())
+	router.Handle("DELETE /removePassword/{path...}", router.removePassword())
 
 	return setMiddleware(router)
 }
@@ -135,7 +136,7 @@ func (router *Mux) login() http.Handler {
 			}
 		} else {
 			data = make(map[string]any)
-			data["path"] = make([]string, 0)
+			data["path"] = make([]any, 0)
 		}
 
 		for _, currentPath := range data["path"].([]any) {
@@ -234,6 +235,48 @@ func (router *Mux) checkNeedAuth() http.Handler {
 		json.NewEncoder(w).Encode(map[string]any{
 			"needAuth": doesNeedAuth,
 		})
+	})
+}
+
+func (router *Mux) removePassword() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := "/" + r.PathValue("path")
+		oldPassword := r.FormValue("oldPassword")
+
+		doesNeedAuth, err := db.CheckIfPathHasAuth(router.Config.GetDatabase(), path)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if !doesNeedAuth {
+			http.Error(w, "This directory isn't protected by password", http.StatusBadRequest)
+			return
+		}
+
+		hashedOldPassword, err := db.GetPasswordOfPath(router.Config.GetDatabase(), path)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		isMatch := utils.VerifyPassword(oldPassword, hashedOldPassword)
+
+		if !isMatch {
+			http.Error(w, "Old password is incorrect!", http.StatusForbidden)
+			return
+		}
+
+		err = db.RemovePasswordOfPath(router.Config.GetDatabase(), path)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte("Remove password protection successfully"))
 	})
 }
 

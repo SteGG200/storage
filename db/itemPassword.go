@@ -80,3 +80,19 @@ func GetPasswordOfPath(db *DB, path string) (string, error) {
 
 	return row.Password, nil
 }
+
+func RemovePasswordOfPath(db *DB, path string) error {
+	query := `
+	DELETE FROM item_password
+	WHERE path = ?
+	`
+
+	_, err := db.Exec(query, path)
+
+	if err != nil {
+		logger.ErrorLogger.Print(err)
+		return err
+	}
+
+	return nil
+}

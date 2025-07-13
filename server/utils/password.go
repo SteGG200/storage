@@ -7,7 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const cost = 15
+const cost = 12
 
 /*
 HashPassword hashes the provided password using bcrypt.

@@ -22,7 +22,6 @@ export default function LoginForm({ path }: LoginFormProps) {
 		setIsLoading(true);
 		try {
 			const formData = new FormData(event.currentTarget)
-      formData.append('password', password)
 			await login(path, formData)
       await queryClient.invalidateQueries({
         queryKey: ['checkAuth', path]
@@ -41,6 +40,7 @@ export default function LoginForm({ path }: LoginFormProps) {
           <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             type="password"
+            name="password"
             placeholder="Enter password"
             value={password}
             onChange={(event) => {
