@@ -7,14 +7,15 @@ import { FormEvent, useState } from "react";
 import { Input } from "../ui/input";
 import { uploadFile } from "@/lib/action/uploadFile";
 import { useQueryClient } from "@tanstack/react-query";
+import UploadProgressDialog from "./UploadProgressDialog";
 
-interface UploadFileButtonProps {
+interface UploadFileDialogProps {
 	path: string
 }
 
 export default function UploadFileButton({
 	path
-}: UploadFileButtonProps) {
+}: UploadFileDialogProps) {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 	const [newFileName, setNewFileName] = useState<string>("")
 	const [isDialogOpening, setIsDialogOpening] = useState<boolean>(false)
@@ -51,7 +52,7 @@ export default function UploadFileButton({
 	return (
 		<>
 			<Dialog open={isDialogOpening} onOpenChange={setIsDialogOpening}>
-				<DialogTrigger className="cursor-pointer" asChild>
+				<DialogTrigger asChild>
 					<Button className="bg-blue-600 hover:bg-blue-700 text-white">
 						<Upload className="mr-2 h-4 w-4"/>
 						Upload File
@@ -75,14 +76,19 @@ export default function UploadFileButton({
 							className="bg-gray-700 border-gray-600 text-gray-100"
 						/>
 						{selectedFile && (
-							<Input
-								type="text"
-								name="name"
-								placeholder="New file name"
-								value={newFileName}
-								onChange={(event) => setNewFileName(event.target.value)}
-								className="bg-gray-700 border-gray-600 text-gray-100"
-							/>
+							<>
+								<label className="text-sm font-medium text-gray-300">
+									Enter your file name:
+								</label>
+								<Input
+									type="text"
+									name="name"
+									placeholder="New file name"
+									value={newFileName}
+									onChange={(event) => setNewFileName(event.target.value)}
+									className="mt-2 bg-gray-700 border-gray-600 text-gray-100"
+								/>
+							</>
 						)}
 						{ errorMessage.length > 0 && (
 							<p className="text-red-500">{errorMessage}</p>
@@ -97,37 +103,7 @@ export default function UploadFileButton({
 					</form>
 				</DialogContent>
 			</Dialog>
-			<Dialog open={isProgressDialogOpening} onOpenChange={setIsProgressDialogOpening}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Uploading File</DialogTitle>
-					</DialogHeader>
-					<div className="space-y-4">
-						<div className="relative pt-1">
-							<div className="flex mb-2 items-center justify-between">
-								<div>
-									<span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-										Progress
-									</span>
-								</div>
-								<div className="text-right">
-									<span className="text-xs font-semibold inline-block text-teal-600">
-										{currentProgress.toFixed(1)}%
-									</span>
-								</div>
-							</div>
-							<div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-teal-200">
-								<div
-									style={{ width: `${currentProgress}%` }}
-									className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-teal-500 transition-all duration-500 ease-in-out"
-								>
-								</div>
-							</div>
-						</div>
-						<p className="text-center text-sm text-gray-400">Uploading... Please wait</p>
-					</div>
-				</DialogContent>
-			</Dialog>
+			<UploadProgressDialog open={isProgressDialogOpening} progress={currentProgress}/>
 		</>
 	)	
 }

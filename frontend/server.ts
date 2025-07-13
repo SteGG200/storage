@@ -19,7 +19,7 @@ app.prepare().then(() => {
 
 	server.use(express.static(path.join(__dirname, process.env.TMP_DIR)))
 
-	server.all('/*path', (req, res) => {
+	server.all('*path', (req, res) => {
 		return handler(req, res)
 	})
 

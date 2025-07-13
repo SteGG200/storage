@@ -57,10 +57,10 @@ export const login = async (
 	const token = await getToken()
 
 	const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login/${path}`,{
+		method: 'POST',
 		headers: {
 			"Authorization": `Bearer ${token}`
 		},
-		method: 'POST',
 		body: formData
 	})
 
@@ -71,6 +71,8 @@ export const login = async (
 
 	const data : { token : string } = await response.json()
 	await saveToken(data.token)
+
+	redirect(`/storage/${path}`)
 }
 
 export const setPassword = async (

@@ -1,6 +1,7 @@
 import { sleep } from "@/lib/utils/client"
+import { getUploadSessionToken, uploadByChunk } from "./server"
 
-const CHUNK_SIZE = 1024 * 1024 * 5
+const CHUNK_SIZE = 1024 * 1024 * 0.5
 
 export const uploadFile = async (path: string, 
 	formData: FormData, 
@@ -21,17 +22,7 @@ export const uploadFile = async (path: string,
 	const requestTokenFormData = new FormData()
 	requestTokenFormData.append('name', filename)
 
-	const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/upload/token/${path}`, {
-		method: 'POST',
-		body: requestTokenFormData
-	})
-
-	if (!response.ok) {
-		const msg = await response.text()
-    throw new Error(msg)
-  }
-
-	const { token } : { token: string } = await response.json()
+	const uploadSessionToken = await getUploadSessionToken(path, requestTokenFormData)
 
 
 	// Upload file progress
@@ -53,21 +44,11 @@ export const uploadFile = async (path: string,
     uploadFileFormData.set('file', chunk)
 		uploadFileFormData.set('isLast', endIndex === size? "1" : "0")
 
-		const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/upload/file`, {
-			method: 'POST',
-			headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: uploadFileFormData
-		})
-
-		if (!uploadResponse.ok) {
-      throw new Error('Failed to upload file')
-    }
+		await uploadByChunk(uploadFileFormData, uploadSessionToken)
 
 		progressHandler(currentIndexChunk / totalNumberChunks * 100)
 		startIndex = endIndex
 		currentIndexChunk++
-		await sleep(500)
+		await sleep(200)
 	}
 }

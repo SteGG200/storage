@@ -22,10 +22,9 @@ export default function LoginForm({ path }: LoginFormProps) {
 		setIsLoading(true);
 		try {
 			const formData = new FormData(event.currentTarget)
+      
 			await login(path, formData)
-      await queryClient.invalidateQueries({
-        queryKey: ['checkAuth', path]
-      })
+
 			setIsLoading(false)
 		}catch(err){
 			setIsLoading(false)

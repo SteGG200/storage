@@ -1,7 +1,5 @@
-import AuthorizationComponent from "@/components/AuthorizationComponent"
-import { checkIsAuthorizedOptions } from "@/lib/action/auth/queryOptions"
-import { getQueryClient } from "@/lib/queryClient"
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
+import { checkIsAuthorized } from "@/lib/action/auth"
+import { redirect } from "next/navigation"
 
 export default async function StorageLayout({
 	params,
@@ -13,13 +11,16 @@ export default async function StorageLayout({
 	content: React.ReactNode,
 }) {
 	const path = ((await params).path ?? []).join("/")
-	const queryClient = getQueryClient()
 
-	await queryClient.prefetchQuery(checkIsAuthorizedOptions(path))
+	const response = await checkIsAuthorized(path)
 
-	return(
-		<HydrationBoundary state={dehydrate(queryClient)}>
-      <AuthorizationComponent path={path} login={login} content={content}/>
-    </HydrationBoundary>
-	)
+	if(response.isAuthorized){
+		return content
+	}
+
+	if(response.unauthorizedPath.slice(1) != path){
+		redirect(`/storage/${response.unauthorizedPath.slice(1)}`)
+	}
+
+	return login
 }

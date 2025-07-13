@@ -3,7 +3,7 @@ import { useAppStore } from "../providers/AppStoreProvider";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 
-export default function DownloadInfoDialog() {
+export default function DownloadProgressDialog() {
   const { isDownloading, currentDonwloadProgress } = useAppStore((state) => state)
 
   return (

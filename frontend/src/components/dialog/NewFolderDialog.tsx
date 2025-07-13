@@ -8,13 +8,13 @@ import { FormEvent, useState } from "react"
 import { createFolder } from "@/lib/action/createFolder"
 import { useQueryClient } from "@tanstack/react-query"
 
-interface NewFolderButtonProps {
+interface NewFolderDialogProps {
 	path: string
 }
 
-export default function NewFolderButton({
+export default function NewFolderDialog({
 	path
-}: NewFolderButtonProps){
+}: NewFolderDialogProps){
 	const [newFolderName, setNewFolderName] = useState("")
 	const [isDialogOpening, setIsDialogOpening] = useState(false)
 	const [errorMessage, setErrorMessage] = useState("")
