@@ -1,10 +1,12 @@
 package create
 
 import (
+	"errors"
 	"net/http"
 	"path/filepath"
 
 	"github.com/SteGG200/storage/server/config"
+	"github.com/SteGG200/storage/server/exception"
 	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
 )
@@ -32,6 +34,10 @@ func (router *Mux) createFolder() http.Handler {
 		err := createFolder(filepath.Join(root, path), foldername)
 
 		if err != nil {
+			if errors.Is(err, exception.ErrFolderExist) {
+				http.Error(w, "Folder already exists!", http.StatusConflict)
+				return
+			}
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}

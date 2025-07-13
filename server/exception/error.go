@@ -7,4 +7,5 @@ var (
 	ErrNotAFile          = errors.New("not a file")
 	ErrNotFoundJWTSecret = errors.New("not found env variable JWT_SECRET")
 	ErrInvalidToken      = errors.New("invalid token")
+	ErrFolderExist       = errors.New("folder already exists")
 )

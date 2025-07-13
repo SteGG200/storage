@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/SteGG200/storage/logger"
+	"github.com/SteGG200/storage/server/exception"
 )
 
 func createFolder(path string, foldername string) error {
@@ -20,8 +21,8 @@ func createFolder(path string, foldername string) error {
 	_, err = os.Stat(filepath.Join(path, foldername))
 
 	if !errors.Is(err, fs.ErrNotExist) {
-		logger.ErrorLogger.Print(fs.ErrExist)
-		return fs.ErrExist
+		logger.ErrorLogger.Print(exception.ErrFolderExist)
+		return exception.ErrFolderExist
 	}
 
 	err = os.Mkdir(filepath.Join(path, foldername), 0744)
