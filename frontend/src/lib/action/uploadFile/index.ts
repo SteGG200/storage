@@ -1,7 +1,7 @@
 import { sleep } from "@/lib/utils/client"
 import { getUploadSessionToken, uploadByChunk } from "./server"
 
-const CHUNK_SIZE = 1024 * 1024 * 0.5
+const CHUNK_SIZE = 1024 * 1024 * 5
 
 export const uploadFile = async (path: string, 
 	formData: FormData, 
