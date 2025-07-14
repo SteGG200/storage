@@ -23,6 +23,7 @@ export default function DownloadFileButton({
 				setCurrentDownloadProgress(progress)
 				if(progress === 100){
 					setIsDownloading(false)
+					setCurrentDownloadProgress(0)
 				}
 			})
 		}catch (error) {
