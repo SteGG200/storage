@@ -31,7 +31,7 @@ export const downloadFile = async (
 	}
 
 	const a = document.createElement('a')
-	a.href = `/${hashString}_${filename}`
+	a.href = `/temp/${hashString}_${filename}`
 	a.download = filename
 	document.body.appendChild(a)
 	a.click()

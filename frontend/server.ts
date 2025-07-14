@@ -17,7 +17,7 @@ app.prepare().then(() => {
 		throw new Error('TMP_DIR env isn\'t provided')
 	}
 
-	server.use(express.static(path.join(__dirname, process.env.TMP_DIR)))
+	server.use('/temp', express.static(path.join(__dirname, process.env.TMP_DIR)))
 
 	server.all('*path', (req, res) => {
 		return handler(req, res)
