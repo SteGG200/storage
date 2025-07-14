@@ -1,15 +1,15 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 interface UploadProgressDialogProps {
-	open: boolean
-	progress: number
+	open: boolean;
+	progress: number;
 }
 
 export default function UploadProgressDialog({
 	open,
-	progress
+	progress,
 }: UploadProgressDialogProps) {
-	return(
+	return (
 		<Dialog open={open}>
 			<DialogContent className="[&>button]:hidden">
 				<DialogHeader>
@@ -33,13 +33,14 @@ export default function UploadProgressDialog({
 							<div
 								style={{ width: `${progress}%` }}
 								className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-teal-500 transition-all duration-500 ease-in-out"
-							>
-							</div>
+							></div>
 						</div>
 					</div>
-					<p className="text-center text-sm text-gray-400">Uploading... Please wait</p>
+					<p className="text-center text-sm text-gray-400">
+						Uploading... Please wait
+					</p>
 				</div>
 			</DialogContent>
 		</Dialog>
-	)
+	);
 }

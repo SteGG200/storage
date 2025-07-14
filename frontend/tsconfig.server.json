@@ -1,11 +1,13 @@
 {
-	"compilerOptions": {
-		"target": "es2024",
-		"module": "commonjs",
-		"outDir": "dist",
-		"isolatedModules": false,
-		"noEmit": false,
-	},
-	"include": ["server.ts"],
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist",
+    "lib": ["es2024"],
+    "target": "es2024",
+    "isolatedModules": false,
+    "noEmit": false
+  },
+  "include": ["server.ts"],
 	"exclude": ["node_modules", "tmp/*"]
 }

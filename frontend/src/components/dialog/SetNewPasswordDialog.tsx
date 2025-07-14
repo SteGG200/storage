@@ -1,52 +1,57 @@
-'use client'
+'use client';
 
-import { Shield } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
-import { Button } from "../ui/button"
-import { FormEvent, useState } from "react"
-import { Input } from "../ui/input"
-import { setPassword } from "@/lib/action/auth"
+import { Shield } from 'lucide-react';
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '../ui/dialog';
+import { Button } from '../ui/button';
+import { FormEvent, useState } from 'react';
+import { Input } from '../ui/input';
+import { setPassword } from '@/lib/action/auth';
 
 interface SetNewPasswordDialogProps {
-	path: string
+	path: string;
 }
 
 export default function SetNewPasswordDialog({
-	path
+	path,
 }: SetNewPasswordDialogProps) {
-	const [errorMessage, setErrorMessage] = useState("")
-	const [isLoading, setIsLoading] = useState(false)
-	const [isDialogOpen, setIsDialogOpen] = useState(false)
+	const [errorMessage, setErrorMessage] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
 
 	const submit = async (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault()
-		setIsLoading(true)
-		try{
-			const formData = new FormData(event.currentTarget)
-			
-			const newPassword = formData.get("password")
-			const confirmPassword = formData.get("confirm")
-			if(newPassword != confirmPassword){
-				throw new Error("Passwords do not match")
+		event.preventDefault();
+		setIsLoading(true);
+		try {
+			const formData = new FormData(event.currentTarget);
+
+			const newPassword = formData.get('password');
+			const confirmPassword = formData.get('confirm');
+			if (newPassword != confirmPassword) {
+				throw new Error('Passwords do not match');
 			}
-			formData.delete("confirm")
+			formData.delete('confirm');
 
-			await setPassword(path, formData)
+			await setPassword(path, formData);
 
-			setIsLoading(false)
-			setIsDialogOpen(false)
-
-		}catch(err){
-			setErrorMessage((err as Error).message)
-			setIsLoading(false)
+			setIsLoading(false);
+			setIsDialogOpen(false);
+		} catch (err) {
+			setErrorMessage((err as Error).message);
+			setIsLoading(false);
 		}
-	}
+	};
 
 	return (
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 			<DialogTrigger asChild>
 				<Button className="bg-orange-600 hover:bg-orange-700 text-white">
-					<Shield className="mr-2 h-4 w-4"/>
+					<Shield className="mr-2 h-4 w-4" />
 					Set Password
 				</Button>
 			</DialogTrigger>
@@ -71,12 +76,18 @@ export default function SetNewPasswordDialog({
 						disabled={isLoading}
 						required
 					/>
-					{errorMessage && <p className="text-sm text-red-400">{errorMessage}</p>}
-					<Button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white w-full" disabled={isLoading}>
+					{errorMessage && (
+						<p className="text-sm text-red-400">{errorMessage}</p>
+					)}
+					<Button
+						type="submit"
+						className="bg-orange-600 hover:bg-orange-700 text-white w-full"
+						disabled={isLoading}
+					>
 						Set Password
 					</Button>
 				</form>
 			</DialogContent>
 		</Dialog>
-	)
+	);
 }

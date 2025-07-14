@@ -1,43 +1,44 @@
-'use client'
-import { useAppStore } from "../providers/AppStoreProvider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
-
+'use client';
+import { useAppStore } from '../providers/AppStoreProvider';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 
 export default function DownloadProgressDialog() {
-  const { isDownloading, currentDonwloadProgress } = useAppStore((state) => state)
+	const { isDownloading, currentDonwloadProgress } = useAppStore(
+		(state) => state
+	);
 
-  return (
-    <Dialog open={isDownloading}>
-      <DialogContent className="[&>button]:hidden">
-        <DialogHeader>
-          <DialogTitle>Preparing for download...</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div className="relative pt-1">
-            <div className="flex mb-2 items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
-                  Progress
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-semibold inline-block text-teal-600">
-                  {currentDonwloadProgress.toFixed(1)}%
-                </span>
-              </div>
-            </div>
-            <div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-teal-200">
-              <div
-                style={{ width: `${currentDonwloadProgress}%` }}
-                className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-teal-500 transition-all duration-500 ease-in-out"
-              ></div>
-            </div>
-          </div>
-          <p className="text-center text-sm text-gray-400">
-            Loading... Please wait
-          </p>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+	return (
+		<Dialog open={isDownloading}>
+			<DialogContent className="[&>button]:hidden">
+				<DialogHeader>
+					<DialogTitle>Preparing for download...</DialogTitle>
+				</DialogHeader>
+				<div className="space-y-4">
+					<div className="relative pt-1">
+						<div className="flex mb-2 items-center justify-between">
+							<div>
+								<span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+									Progress
+								</span>
+							</div>
+							<div className="text-right">
+								<span className="text-xs font-semibold inline-block text-teal-600">
+									{currentDonwloadProgress.toFixed(1)}%
+								</span>
+							</div>
+						</div>
+						<div className="overflow-hidden h-2 mb-4 text-xs flex rounded bg-teal-200">
+							<div
+								style={{ width: `${currentDonwloadProgress}%` }}
+								className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-teal-500 transition-all duration-500 ease-in-out"
+							></div>
+						</div>
+					</div>
+					<p className="text-center text-sm text-gray-400">
+						Loading... Please wait
+					</p>
+				</div>
+			</DialogContent>
+		</Dialog>
+	);
 }

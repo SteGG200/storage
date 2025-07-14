@@ -1,4 +1,4 @@
-import { isServer, QueryClient } from "@tanstack/react-query"
+import { isServer, QueryClient } from '@tanstack/react-query';
 
 const makeQueryClient = () => {
 	return new QueryClient({
@@ -6,20 +6,20 @@ const makeQueryClient = () => {
 			queries: {
 				staleTime: Infinity,
 				retry: false,
-			}
-		}
-	})
-}
+			},
+		},
+	});
+};
 
-let browserQueryClient : QueryClient | null = null
+let browserQueryClient: QueryClient | null = null;
 
 export const getQueryClient = () => {
 	if (isServer) {
-		return makeQueryClient()
-	}else {
+		return makeQueryClient();
+	} else {
 		if (!browserQueryClient) {
-      browserQueryClient = makeQueryClient()
-    }
-    return browserQueryClient
+			browserQueryClient = makeQueryClient();
+		}
+		return browserQueryClient;
 	}
-}
+};

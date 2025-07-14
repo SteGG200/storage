@@ -1,17 +1,17 @@
-import { useEffect } from "react"
+import { useEffect } from 'react';
 
 export const useDebounce = (
-	value: string, 
+	value: string,
 	delay: number,
 	onDebounce: () => void
 ) => {
 	useEffect(() => {
 		const handler = setTimeout(() => {
-			onDebounce()
-		}, delay)
+			onDebounce();
+		}, delay);
 
 		return () => {
-			clearTimeout(handler)
-		}
+			clearTimeout(handler);
+		};
 	}, [value, delay]);
-}
+};
