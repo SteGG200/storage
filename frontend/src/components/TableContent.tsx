@@ -14,6 +14,7 @@ import RenameButton from "./button/RenameButton"
 import RenameDialog from "./dialog/RenameDialog"
 import React from "react"
 import DeleteFileButton from "./button/DeleteFileButton"
+import { formatDate, formatSize } from "@/lib/utils/client"
 
 interface TableContentProps {
 	path: string
@@ -64,10 +65,10 @@ export default function TableContent({
 								</div>
 							</TableCell>
 							<TableCell>
-								{item.size}
+								{formatSize(item.size)}
 							</TableCell>
 							<TableCell>
-								{item.date}
+								{formatDate(item.date)}
 							</TableCell>
 							<TableCell>
 								<DropdownMenu>
