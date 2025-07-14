@@ -65,7 +65,7 @@ export default function TableContent({
 								</div>
 							</TableCell>
 							<TableCell>
-								{formatSize(item.size)}
+								{item.isDirectory ? "-" : formatSize(item.size)}
 							</TableCell>
 							<TableCell>
 								{formatDate(item.date)}

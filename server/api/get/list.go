@@ -2,7 +2,6 @@ package get
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/SteGG200/storage/logger"
 	"github.com/SteGG200/storage/server/exception"
@@ -43,14 +42,7 @@ func listEntries(pattern string) (items []Item, err error) {
 		if !info.IsDir() {
 			size = info.Size()
 		} else {
-			dirSize, err := getDirectorySize(filepath.Join(pattern, info.Name()))
-
-			if err != nil {
-				logger.ErrorLogger.Print(err)
-				return nil, err
-			}
-
-			size = dirSize
+			size = 0
 		}
 
 		items = append(items, Item{
@@ -59,41 +51,6 @@ func listEntries(pattern string) (items []Item, err error) {
 			Date:        info.ModTime(),
 			IsDirectory: info.IsDir(),
 		})
-	}
-
-	return
-}
-
-func getDirectorySize(pattern string) (size int64, err error) {
-	entries, err := os.ReadDir(pattern)
-
-	if err != nil {
-		logger.ErrorLogger.Print(err)
-		return 0, err
-	}
-
-	size = 0
-
-	for _, entry := range entries {
-		info, err := entry.Info()
-
-		if err != nil {
-			logger.ErrorLogger.Print(err)
-			return 0, err
-		}
-
-		if !info.IsDir() {
-			size += info.Size()
-		} else {
-			dirSize, err := getDirectorySize(filepath.Join(pattern, info.Name()))
-
-			if err != nil {
-				logger.ErrorLogger.Print(err)
-				return 0, err
-			}
-
-			size += dirSize
-		}
 	}
 
 	return
