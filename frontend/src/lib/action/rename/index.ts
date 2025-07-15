@@ -1,5 +1,5 @@
 'use server';
-import { getToken } from '@/lib/utils/server';
+import { getToken, saveToken } from '@/lib/utils/server';
 import filepath from 'path';
 
 export const renameItem = async (
@@ -20,7 +20,14 @@ export const renameItem = async (
 	);
 
 	if (!response.ok) {
+		if (response.status === 401) {
+			throw new Error('You have to log in this folder first to rename it');
+		}
 		const msg = await response.text();
 		throw new Error(msg);
 	}
+
+	const data: { token: string } = await response.json()
+	const newToken = data.token
+	await saveToken(newToken)
 };

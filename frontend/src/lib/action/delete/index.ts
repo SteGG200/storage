@@ -1,5 +1,5 @@
 'use server';
-import { getToken } from '@/lib/utils/server';
+import { getToken, saveToken } from '@/lib/utils/server';
 import filepath from 'path';
 
 export const deleteItem = async (path: string, filename: string) => {
@@ -21,4 +21,8 @@ export const deleteItem = async (path: string, filename: string) => {
 		const msg = await response.text();
 		throw new Error(msg);
 	}
+
+	const data: { token: string } = await response.json()
+	const newToken = data.token
+	await saveToken(newToken)
 };

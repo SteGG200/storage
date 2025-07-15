@@ -1,6 +1,7 @@
 package remove
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
+	"github.com/SteGG200/storage/server/utils"
 )
 
 type Mux struct {
@@ -47,6 +49,7 @@ func (router *Mux) removeItem() http.Handler {
 			return
 		}
 
+		// Remove password of removed folder from database
 		err = db.RemovePasswordOfPath(router.Config.GetDatabase(), path)
 
 		if err != nil {
@@ -54,6 +57,50 @@ func (router *Mux) removeItem() http.Handler {
 			return
 		}
 
-		w.Write([]byte("Deleted successfully"))
+		// Remove the removed path from data in jwt token
+		w.Header().Set("Content-Type", "application/json")
+
+		_, token := utils.GetAuthorizationHeader(r)
+
+		if token != "" {
+			data, err := utils.ParseToken(token)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			newData := make(map[string]any)
+			newData["path"] = make([]any, 0)
+			for _, currentPath := range data["path"].([]any) {
+				currentPathToStr, ok := currentPath.(string)
+
+				if !ok {
+					http.Error(w, "Unexpected type of path in data of jwt token", http.StatusInternalServerError)
+					return
+				}
+
+				if currentPathToStr == path {
+					continue
+				}
+
+				newData["path"] = append(newData["path"].([]any), currentPath)
+			}
+
+			newToken, err := utils.GenerateToken(newData)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			json.NewEncoder(w).Encode(map[string]any{
+				"token": newToken,
+			})
+
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]any{
+			"token": "",
+		})
 	})
 }

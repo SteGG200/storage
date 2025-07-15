@@ -1,6 +1,7 @@
 package rename
 
 import (
+	"encoding/json"
 	"errors"
 	"io/fs"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"github.com/SteGG200/storage/server/config"
 	"github.com/SteGG200/storage/server/middleware"
 	"github.com/SteGG200/storage/server/mux"
+	"github.com/SteGG200/storage/server/utils"
 )
 
 type Mux struct {
@@ -21,7 +23,7 @@ func New(config *config.Config) http.Handler {
 		mux.New(config),
 	}
 
-	router.Handle("/{path...}", router.renameItem())
+	router.Handle("/{path...}", middleware.SetAuthorization(router.renameItem(), "path", router.Config.GetDatabase()))
 
 	return setMiddleware(router)
 }
@@ -43,6 +45,7 @@ func (router *Mux) renameItem() http.Handler {
 			return
 		}
 
+		// Update folder's name in database
 		err = db.RenameAuthPath(router.Config.GetDatabase(), path, filepath.Join(filepath.Dir(path), newName))
 
 		if err != nil {
@@ -50,7 +53,51 @@ func (router *Mux) renameItem() http.Handler {
 			return
 		}
 
-		w.Write([]byte("Renamed successfully"))
+		// Remove the removed path from data in jwt token
+		w.Header().Set("Content-Type", "application/json")
+
+		_, token := utils.GetAuthorizationHeader(r)
+
+		if token != "" {
+			data, err := utils.ParseToken(token)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			newData := make(map[string]any)
+			newData["path"] = make([]any, 0)
+			for _, currentPath := range data["path"].([]any) {
+				currentPathToStr, ok := currentPath.(string)
+
+				if !ok {
+					http.Error(w, "Unexpected type of path in data of jwt token", http.StatusInternalServerError)
+					return
+				}
+
+				if currentPathToStr == path {
+					continue
+				}
+
+				newData["path"] = append(newData["path"].([]any), currentPath)
+			}
+
+			newToken, err := utils.GenerateToken(newData)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			json.NewEncoder(w).Encode(map[string]any{
+				"token": newToken,
+			})
+
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]any{
+			"token": "",
+		})
 	})
 }
 
