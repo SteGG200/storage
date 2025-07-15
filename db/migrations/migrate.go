@@ -51,7 +51,7 @@ func main() {
 		return
 	}
 
-	var newVersion string
+	newVersion := currentVersion
 
 	// Apply each schema file to the database
 	for _, version := range versions {
@@ -59,7 +59,7 @@ func main() {
 			sqlQuery, err := fs.ReadFile(sqlFiles, version+".sql")
 
 			if err != nil {
-				logger.ErrorLogger.Printf("Faile to apply schema %s.sql", version)
+				logger.ErrorLogger.Printf("Faile to read schema %s.sql", version)
 				logger.ErrorLogger.Fatal(err)
 				return
 			}
