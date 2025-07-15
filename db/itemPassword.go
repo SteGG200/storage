@@ -43,6 +43,22 @@ func CreateAuthForPath(db *DB, path string, password string) error {
 	return nil
 }
 
+func RenameAuthPath(db *DB, oldPath string, newPath string) error {
+	query := `
+	UPDATE item_password
+	SET path = ?
+	WHERE path = ?
+	`
+
+	_, err := db.Exec(query, newPath, oldPath)
+
+	if err != nil {
+		logger.ErrorLogger.Print(err)
+		return err
+	}
+	return nil
+}
+
 func ChangePasswordOfPath(db *DB, path string, password string) error {
 	query := `
 	UPDATE item_password
