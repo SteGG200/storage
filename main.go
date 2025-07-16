@@ -24,7 +24,7 @@ func main() {
 	logger.SetFile(*logFilePath)
 
 	if err := godotenv.Load(".env"); err != nil {
-		logger.ErrorLogger.Fatal(err)
+		logger.WarningLogger.Println(err)
 	}
 
 	db, err := db.New(*dbFilePath)
