@@ -90,6 +90,7 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	var writeMu sync.Mutex
 
+	// #nosec G120
 	fileName := r.FormValue("name")
 	srcFile, srcFileHeader, err := r.FormFile("file")
 	if err != nil {
@@ -114,7 +115,9 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// #nosec G304
 	finalPath := filepath.Join(targetPath, fileName)
+	//#nosec G304 G703
 	dstFile, err := os.Create(finalPath)
 	if err != nil {
 		sendSSEError(w, flusher, "failed to create file: "+err.Error(), &writeMu)

@@ -3,7 +3,7 @@
 all: fmt lint build
 
 test:
-	go test -v ./...
+	go test -race -v ./...
 
 verify:
 	golangci-lint config verify

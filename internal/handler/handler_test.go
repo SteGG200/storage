@@ -3,7 +3,6 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -28,25 +27,6 @@ func multipartField(t *testing.T, fieldName, fieldValue string) (*bytes.Buffer, 
 		t.Fatal(err)
 	}
 	return body, writer.FormDataContentType()
-}
-
-// multipartFieldDeterministic creates a multipart form body using a fixed boundary
-// so that the content type is deterministic for tests that need to reuse it.
-func multipartFieldDeterministic(t *testing.T, fieldName, fieldValue, boundary string) (*bytes.Buffer, string) {
-	t.Helper()
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	if err := writer.SetBoundary(boundary); err != nil {
-		t.Fatal(err)
-	}
-	if err := writer.WriteField(fieldName, fieldValue); err != nil {
-		t.Fatal(err)
-	}
-	if err := writer.Close(); err != nil {
-		t.Fatal(err)
-	}
-	contentType := fmt.Sprintf("multipart/form-data; boundary=%s", boundary)
-	return body, contentType
 }
 
 func setupTestHandler(t *testing.T, root string) http.Handler {
