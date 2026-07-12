@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/SteGG200/storage/internal/fsutil"
@@ -20,13 +19,10 @@ func sendSSEProgress(w http.ResponseWriter, flusher http.Flusher, read, total in
 
 	percent := int(0)
 	if total > 0 {
-		percent = int((read * 100) / total)
-		if percent > 100 {
-			percent = 100
-		}
+		percent = min(int((read*100)/total), 100)
 	}
 
-	data, _ := json.Marshal(map[string]interface{}{
+	data, _ := json.Marshal(map[string]any{
 		"percent":      percent,
 		"bytesWritten": read,
 		"totalBytes":   total,
@@ -42,7 +38,7 @@ func sendSSEError(w http.ResponseWriter, flusher http.Flusher, msg string, mu *s
 	mu.Lock()
 	defer mu.Unlock()
 
-	data, _ := json.Marshal(map[string]string{"error": msg})
+	data, _ := json.Marshal(ErrorResponse{Error: msg})
 	_, _ = fmt.Fprintf(w, "data: %s\n\n", data)
 	if flusher != nil {
 		flusher.Flush()
@@ -93,80 +89,16 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var writeMu sync.Mutex
-	totalBytes := r.ContentLength
 
-	// Wrap r.Body to track read progress
-	progressR := &progressReader{
-		r:     r.Body,
-		total: totalBytes,
-		onProgress: func(read int64, total int64) {
-			sendSSEProgress(w, flusher, read, total, &writeMu)
-		},
-	}
-	r.Body = &progressReadCloser{Reader: progressR, Closer: r.Body}
-
-	mr, err := r.MultipartReader()
+	fileName := r.FormValue("name")
+	srcFile, srcFileHeader, err := r.FormFile("file")
 	if err != nil {
-		sendSSEError(w, flusher, "failed to get multipart reader: "+err.Error(), &writeMu)
+		sendSSEError(w, flusher, "failed to get file from form: "+err.Error(), &writeMu)
 		return
 	}
 
-	var fileName string
-	var tempFile *os.File
-	var tempPath string
-
-	defer func() {
-		if tempFile != nil {
-			_ = tempFile.Close()
-		}
-		if tempPath != "" {
-			// #nosec
-			_ = os.Remove(tempPath)
-		}
-	}()
-
-	for {
-		part, err := mr.NextPart()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			sendSSEError(w, flusher, "failed to read part: "+err.Error(), &writeMu)
-			return
-		}
-
-		formName := part.FormName()
-		switch formName {
-		case "name":
-			buf := new(strings.Builder)
-			_, _ = io.Copy(buf, part)
-			fileName = strings.TrimSpace(buf.String())
-		case "file":
-			// We can check if filename was passed in the part header if name field is empty,
-			// but we prioritize form field "name".
-			if fileName == "" {
-				fileName = strings.TrimSpace(part.FileName())
-			}
-
-			// Create a temporary file to stream file content safely
-			tempFile, err = os.CreateTemp(targetPath, ".upload-tmp-*")
-			if err != nil {
-				sendSSEError(w, flusher, "failed to create temporary file: "+err.Error(), &writeMu)
-				return
-			}
-			tempPath = tempFile.Name()
-
-			_, err = io.Copy(tempFile, part)
-			if err != nil {
-				sendSSEError(w, flusher, "failed to write file: "+err.Error(), &writeMu)
-				return
-			}
-			if err := tempFile.Close(); err != nil {
-				sendSSEError(w, flusher, "failed to close temporary file: "+err.Error(), &writeMu)
-				return
-			}
-			tempFile = nil
-		}
+	if fileName == "" {
+		fileName = srcFileHeader.Filename
 	}
 
 	if err := fsutil.ValidateName(fileName); err != nil {
@@ -174,7 +106,6 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Lock the parent directory during critical write section
 	unlock := h.Locks.Lock(targetPath)
 	defer unlock()
 
@@ -184,18 +115,31 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	finalPath := filepath.Join(targetPath, fileName)
-	// #nosec
-	if err := os.Rename(tempPath, finalPath); err != nil {
-		sendSSEError(w, flusher, "failed to move uploaded file: "+err.Error(), &writeMu)
+	dstFile, err := os.Create(finalPath)
+	if err != nil {
+		sendSSEError(w, flusher, "failed to create file: "+err.Error(), &writeMu)
 		return
 	}
-	tempPath = "" // Prevent defer from deleting it
+	defer func() {
+		_ = dstFile.Close()
+	}()
 
-	// Report final completion progress
-	sendSSEProgress(w, flusher, totalBytes, totalBytes, &writeMu)
+	pw := &progressWriter{
+		totalWritten: 0,
+		totalSize:    srcFileHeader.Size,
+		targetWriter: dstFile,
+		onProgress: func(written int64, total int64) {
+			sendSSEProgress(w, flusher, written, total, &writeMu)
+		},
+	}
 
-	// Send final status oke
-	successData, _ := json.Marshal(map[string]interface{}{
+	_, err = io.Copy(pw, srcFile)
+	if err != nil {
+		sendSSEError(w, flusher, "failed to write file: "+err.Error(), &writeMu)
+		return
+	}
+
+	successData, _ := json.Marshal(map[string]any{
 		"status": "oke",
 		"file":   fileName,
 	})
