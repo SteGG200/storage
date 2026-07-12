@@ -15,7 +15,7 @@ lint:
 	golangci-lint run ./...
 
 build:
-	go build -o bin/storage ./cmd/storage
+	go build -ldflags="-s -w" -o bin/storage ./cmd/storage
 
 clean:
 	go clean -cache

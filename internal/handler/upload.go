@@ -27,7 +27,7 @@ func sendSSEProgress(w http.ResponseWriter, flusher http.Flusher, read, total in
 		"bytesWritten": read,
 		"totalBytes":   total,
 	})
-	_, _ = fmt.Fprintf(w, "data: %s\n\n", data)
+	_, _ = fmt.Fprintf(w, "event:info\ndata: %s\n\n", data)
 	if flusher != nil {
 		flusher.Flush()
 	}
