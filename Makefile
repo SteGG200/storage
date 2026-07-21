@@ -1,3 +1,4 @@
+LDFLAGS:=-s -w
 .PHONY: all test verify fmt lint build clean
 
 all: fmt lint build
@@ -15,7 +16,7 @@ lint:
 	golangci-lint run ./...
 
 build:
-	go build -ldflags="-s -w" -o bin/storage ./cmd/storage
+	go build -ldflags="${LDFLAGS}" -tags production -o bin/storage ./cmd/storage
 
 clean:
 	go clean -cache

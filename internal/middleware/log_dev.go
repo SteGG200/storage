@@ -26,6 +26,6 @@ func Logger(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 		duration := time.Since(start)
 		// #nosec G706
-		log.Printf("%s %s %dms", r.Method, r.URL.Path, duration.Milliseconds())
+		log.Printf("%s %s %v in %dms", r.Method, r.URL.Path, rw.statusCode, duration.Milliseconds())
 	})
 }

@@ -42,6 +42,8 @@ func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Disposition", "attachment; filename=\""+fi.Name()+"\"")
+
 	// Serve target file
 	http.ServeFile(w, r, targetPath)
 }

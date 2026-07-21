@@ -17,13 +17,7 @@ func sendSSEProgress(w http.ResponseWriter, flusher http.Flusher, read, total in
 	mu.Lock()
 	defer mu.Unlock()
 
-	percent := int(0)
-	if total > 0 {
-		percent = min(int((read*100)/total), 100)
-	}
-
 	data, _ := json.Marshal(map[string]any{
-		"percent":      percent,
 		"bytesWritten": read,
 		"totalBytes":   total,
 	})
