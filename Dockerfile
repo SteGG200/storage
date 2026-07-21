@@ -17,7 +17,8 @@ RUN apk add --no-cache ca-certificates
 RUN mkdir -p /storage
 VOLUME /storage
 
-RUN useradd -n -s /usr/bin/bash storage && \
+RUN addgroup --system storage
+	adduser --system -g storage storage && \
 	chown -R storage:storage /storage
 
 USER storage
