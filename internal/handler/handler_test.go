@@ -344,8 +344,8 @@ func TestUploadFile(t *testing.T) {
 				continue
 			}
 
-			// Check progress percentages
-			if _, ok := progress["percent"]; ok {
+			// Check progress reports
+			if _, ok := progress["bytesWritten"]; ok {
 				hasProgress = true
 			}
 			if status, ok := progress["status"]; ok && status == "oke" {
