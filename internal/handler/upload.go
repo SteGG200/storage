@@ -70,7 +70,48 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set headers for SSE stream
+	// 1. Parse request form and file FIRST before writing/flushing response headers
+	// #nosec G120
+	fileName := r.FormValue("name")
+	srcFile, srcFileHeader, err := r.FormFile("file")
+	if err != nil {
+		sendError(w, http.StatusBadRequest, "failed to get file from form: "+err.Error())
+		return
+	}
+	defer func() {
+		_ = srcFile.Close()
+	}()
+
+	if fileName == "" {
+		fileName = srcFileHeader.Filename
+	}
+
+	if err := fsutil.ValidateName(fileName); err != nil {
+		sendError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	unlock := h.Locks.Lock(targetPath)
+	defer unlock()
+
+	if err := fsutil.CheckDuplicate(targetPath, fileName); err != nil {
+		sendError(w, http.StatusConflict, err.Error())
+		return
+	}
+
+	// #nosec G304
+	finalPath := filepath.Join(targetPath, fileName)
+	//#nosec G304 G703
+	dstFile, err := os.Create(finalPath)
+	if err != nil {
+		sendError(w, http.StatusInternalServerError, "failed to create file: "+err.Error())
+		return
+	}
+	defer func() {
+		_ = dstFile.Close()
+	}()
+
+	// 2. Set headers for SSE stream AFTER parsing request form body
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -83,43 +124,6 @@ func (h *Handler) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var writeMu sync.Mutex
-
-	// #nosec G120
-	fileName := r.FormValue("name")
-	srcFile, srcFileHeader, err := r.FormFile("file")
-	if err != nil {
-		sendSSEError(w, flusher, "failed to get file from form: "+err.Error(), &writeMu)
-		return
-	}
-
-	if fileName == "" {
-		fileName = srcFileHeader.Filename
-	}
-
-	if err := fsutil.ValidateName(fileName); err != nil {
-		sendSSEError(w, flusher, err.Error(), &writeMu)
-		return
-	}
-
-	unlock := h.Locks.Lock(targetPath)
-	defer unlock()
-
-	if err := fsutil.CheckDuplicate(targetPath, fileName); err != nil {
-		sendSSEError(w, flusher, err.Error(), &writeMu)
-		return
-	}
-
-	// #nosec G304
-	finalPath := filepath.Join(targetPath, fileName)
-	//#nosec G304 G703
-	dstFile, err := os.Create(finalPath)
-	if err != nil {
-		sendSSEError(w, flusher, "failed to create file: "+err.Error(), &writeMu)
-		return
-	}
-	defer func() {
-		_ = dstFile.Close()
-	}()
 
 	pw := &progressWriter{
 		totalWritten: 0,
