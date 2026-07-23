@@ -19,8 +19,8 @@ RUN apk add --no-cache ca-certificates tzdata
 
 RUN mkdir -p /storage
 
-RUN addgroup -S storage && \
-    adduser -S -G storage storage && \
+RUN addgroup -S -g 1000 storage && \
+    adduser -S -u 1000 -G storage storage && \
     chown -R storage:storage /storage
 
 USER storage
