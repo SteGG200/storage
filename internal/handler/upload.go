@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -29,6 +30,8 @@ func sendSSEProgress(w http.ResponseWriter, flusher http.Flusher, read, total in
 
 // sendSSEError sends an error message via SSE.
 func sendSSEError(w http.ResponseWriter, flusher http.Flusher, msg string, mu *sync.Mutex) {
+	// #nosec G706
+	log.Printf("[ERROR] 500 SSE Upload Error: %s", msg)
 	mu.Lock()
 	defer mu.Unlock()
 

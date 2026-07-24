@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 )
 
@@ -18,6 +19,10 @@ func sendJSON(w http.ResponseWriter, status int, data any) {
 }
 
 func sendError(w http.ResponseWriter, status int, msg string) {
+	if status == http.StatusInternalServerError {
+		// #nosec G706
+		log.Printf("[ERROR] 500 Internal Server Error: %s", msg)
+	}
 	sendJSON(w, status, ErrorResponse{Error: msg})
 }
 
