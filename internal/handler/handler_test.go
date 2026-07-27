@@ -3,6 +3,8 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/SteGG200/storage/internal/handler"
 	"github.com/SteGG200/storage/internal/model"
@@ -29,6 +32,22 @@ func multipartField(t *testing.T, fieldName, fieldValue string) (*bytes.Buffer, 
 	return body, writer.FormDataContentType()
 }
 
+// multipartFields creates a multipart form body with multiple fields.
+func multipartFields(t *testing.T, fields map[string]string) (*bytes.Buffer, string) {
+	t.Helper()
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	for k, v := range fields {
+		if err := writer.WriteField(k, v); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return body, writer.FormDataContentType()
+}
+
 func setupTestHandler(t *testing.T, root string) http.Handler {
 	h, err := handler.NewHandler(root)
 	if err != nil {
@@ -40,7 +59,9 @@ func setupTestHandler(t *testing.T, root string) http.Handler {
 	mux.HandleFunc("POST /src/{path...}", h.PostSrc)
 	mux.HandleFunc("PUT /src/{path...}", h.PutSrc)
 	mux.HandleFunc("DELETE /src/{path...}", h.DeleteSrc)
-	mux.HandleFunc("POST /upload/{path...}", h.UploadFile)
+	mux.HandleFunc("POST /upload/{path...}", h.PrepareUpload)
+	mux.HandleFunc("PATCH /upload/{path...}", h.StreamUpload)
+	mux.HandleFunc("GET /progress/{path...}", h.UploadProgress)
 	mux.HandleFunc("GET /download/{path...}", h.DownloadFile)
 
 	return mux
@@ -48,11 +69,6 @@ func setupTestHandler(t *testing.T, root string) http.Handler {
 
 func TestGetSrcList(t *testing.T) {
 	tmp := t.TempDir()
-
-	// Setup hierarchy
-	// file1.txt
-	// dir1/
-	//   file2.txt
 
 	if err := os.WriteFile(filepath.Join(tmp, "file1.txt"), []byte("content1"), 0600); err != nil {
 		t.Fatal(err)
@@ -67,7 +83,6 @@ func TestGetSrcList(t *testing.T) {
 
 	app := setupTestHandler(t, tmp)
 
-	// Test GET /src/
 	req := httptest.NewRequest("GET", "/src/", nil)
 	rr := httptest.NewRecorder()
 	app.ServeHTTP(rr, req)
@@ -85,7 +100,6 @@ func TestGetSrcList(t *testing.T) {
 		t.Fatalf("expected 2 items, got: %d", len(items))
 	}
 
-	// Test GET /src/dir1
 	req = httptest.NewRequest("GET", "/src/dir1", nil)
 	rr = httptest.NewRecorder()
 	app.ServeHTTP(rr, req)
@@ -106,12 +120,6 @@ func TestGetSrcList(t *testing.T) {
 
 func TestGetSrcSearch(t *testing.T) {
 	tmp := t.TempDir()
-
-	// Setup hierarchy
-	// match_1.txt
-	// other.txt
-	// nested/
-	//   match_2.txt
 
 	if err := os.WriteFile(filepath.Join(tmp, "match_1.txt"), []byte("match"), 0600); err != nil {
 		t.Fatal(err)
@@ -151,7 +159,6 @@ func TestPostSrcCreateDir(t *testing.T) {
 	tmp := t.TempDir()
 	app := setupTestHandler(t, tmp)
 
-	// Create directory under root
 	body, contentType := multipartField(t, "newName", "newfolder")
 	req := httptest.NewRequest("POST", "/src/", body)
 	req.Header.Set("Content-Type", contentType)
@@ -171,13 +178,11 @@ func TestPostSrcCreateDir(t *testing.T) {
 		t.Fatalf("expected path 'newfolder', got: %s", res["path"])
 	}
 
-	// Verify on disk
 	fi, err := os.Stat(filepath.Join(tmp, "newfolder"))
 	if err != nil || !fi.IsDir() {
 		t.Fatalf("directory was not created or is not a directory: %v", err)
 	}
 
-	// Try creating duplicate folder
 	body2, contentType2 := multipartField(t, "newName", "newfolder")
 	req = httptest.NewRequest("POST", "/src/", body2)
 	req.Header.Set("Content-Type", contentType2)
@@ -201,7 +206,6 @@ func TestPutSrcRename(t *testing.T) {
 
 	app := setupTestHandler(t, tmp)
 
-	// Rename file
 	body, contentType := multipartField(t, "newName", "newfile.txt")
 	req := httptest.NewRequest("PUT", "/src/oldfile.txt", body)
 	req.Header.Set("Content-Type", contentType)
@@ -220,12 +224,10 @@ func TestPutSrcRename(t *testing.T) {
 		t.Fatalf("expected status 'oke', got: %s", fileRes["status"])
 	}
 
-	// Verify on disk
 	if _, err := os.Stat(filepath.Join(tmp, "newfile.txt")); err != nil {
 		t.Fatal("renamed file not found")
 	}
 
-	// Rename folder
 	body2, contentType2 := multipartField(t, "newName", "newdir")
 	req = httptest.NewRequest("PUT", "/src/olddir", body2)
 	req.Header.Set("Content-Type", contentType2)
@@ -289,7 +291,6 @@ func TestDownloadFile(t *testing.T) {
 		t.Fatalf("expected body %q, got %q", content, rr.Body.String())
 	}
 
-	// Try downloading directory
 	req = httptest.NewRequest("GET", "/download/", nil)
 	rr = httptest.NewRecorder()
 	app.ServeHTTP(rr, req)
@@ -299,31 +300,16 @@ func TestDownloadFile(t *testing.T) {
 	}
 }
 
-func TestUploadFile(t *testing.T) {
+func TestPrepareUpload(t *testing.T) {
 	tmp := t.TempDir()
 	app := setupTestHandler(t, tmp)
 
-	// Prepare multipart upload body
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-
-	// Field 'name'
-	err := writer.WriteField("name", "uploaded.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Field 'file'
-	part, err := writer.CreateFormFile("file", "uploaded.txt")
-	if err != nil {
-		t.Fatal(err)
-	}
-	fileContent := "hello multipart upload"
-	_, _ = part.Write([]byte(fileContent))
-	_ = writer.Close()
-
+	body, contentType := multipartFields(t, map[string]string{
+		"name": "uploaded.txt",
+		"size": "22",
+	})
 	req := httptest.NewRequest("POST", "/upload/", body)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", contentType)
 	rr := httptest.NewRecorder()
 	app.ServeHTTP(rr, req)
 
@@ -331,45 +317,148 @@ func TestUploadFile(t *testing.T) {
 		t.Fatalf("expected status 200, got: %d, body: %s", rr.Code, rr.Body.String())
 	}
 
-	// Parse SSE response
-	responseLines := strings.Split(rr.Body.String(), "\n")
-	var hasProgress bool
-	var hasSuccess bool
-
-	for _, line := range responseLines {
-		if strings.HasPrefix(line, "data: ") {
-			dataStr := strings.TrimPrefix(line, "data: ")
-			var progress map[string]interface{}
-			if err := json.Unmarshal([]byte(dataStr), &progress); err != nil {
-				continue
-			}
-
-			// Check progress reports
-			if _, ok := progress["bytesWritten"]; ok {
-				hasProgress = true
-			}
-			if status, ok := progress["status"]; ok && status == "oke" {
-				hasSuccess = true
-			}
-		}
+	var res map[string]string
+	if err := json.Unmarshal(rr.Body.Bytes(), &res); err != nil {
+		t.Fatal(err)
+	}
+	if res["status"] != "oke" {
+		t.Fatalf("expected status 'oke', got: %s", res["status"])
 	}
 
-	if !hasProgress {
-		t.Error("expected SSE response to contain progress reports")
-	}
-	if !hasSuccess {
-		t.Error("expected SSE response to contain success status 'oke'")
+	body2, contentType2 := multipartFields(t, map[string]string{"size": "22"})
+	req = httptest.NewRequest("POST", "/upload/", body2)
+	req.Header.Set("Content-Type", contentType2)
+	rr = httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400 for missing name, got: %d", rr.Code)
 	}
 
-	// Verify disk file
-	diskPath := filepath.Join(tmp, "uploaded.txt")
+	body3, contentType3 := multipartFields(t, map[string]string{"name": "test.txt"})
+	req = httptest.NewRequest("POST", "/upload/", body3)
+	req.Header.Set("Content-Type", contentType3)
+	rr = httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400 for missing size, got: %d", rr.Code)
+	}
+
+	body4, contentType4 := multipartFields(t, map[string]string{"name": "test.txt", "size": "0"})
+	req = httptest.NewRequest("POST", "/upload/", body4)
+	req.Header.Set("Content-Type", contentType4)
+	rr = httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400 for invalid size, got: %d", rr.Code)
+	}
+
+	body5, contentType5 := multipartFields(t, map[string]string{"name": "huge.txt", "size": "10737418241"})
+	req = httptest.NewRequest("POST", "/upload/", body5)
+	req.Header.Set("Content-Type", contentType5)
+	rr = httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf("expected status 413 for size > 10GB, got: %d", rr.Code)
+	}
+}
+
+func TestStreamUpload(t *testing.T) {
+	tmp := t.TempDir()
+	app := setupTestHandler(t, tmp)
+
+	fileContent := "hello streaming upload"
+	fileSize := fmt.Sprintf("%d", len(fileContent))
+
+	prepBody, prepCT := multipartFields(t, map[string]string{
+		"name": "streamed.txt",
+		"size": fileSize,
+	})
+	req := httptest.NewRequest("POST", "/upload/", prepBody)
+	req.Header.Set("Content-Type", prepCT)
+	rr := httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("prepare failed, status: %d", rr.Code)
+	}
+
+	patchReq := httptest.NewRequest("PATCH", "/upload/streamed.txt", strings.NewReader(fileContent))
+	patchReq.Header.Set("Content-Length", fileSize)
+	patchReq.Header.Set("Content-Type", "application/octet-stream")
+	patchRr := httptest.NewRecorder()
+	app.ServeHTTP(patchRr, patchReq)
+
+	if patchRr.Code != http.StatusOK {
+		t.Fatalf("stream upload failed, status: %d, body: %s", patchRr.Code, patchRr.Body.String())
+	}
+
+	diskPath := filepath.Join(tmp, "streamed.txt")
 	// #nosec G304
 	diskData, err := os.ReadFile(diskPath)
 	if err != nil {
 		t.Fatalf("file not found on disk: %v", err)
 	}
-
 	if string(diskData) != fileContent {
-		t.Fatalf("expected file content %q, got %q", fileContent, string(diskData))
+		t.Fatalf("expected content %q, got %q", fileContent, string(diskData))
+	}
+}
+
+func TestUploadProgress(t *testing.T) {
+	tmp := t.TempDir()
+	app := setupTestHandler(t, tmp)
+
+	ts := httptest.NewServer(app)
+	defer ts.Close()
+
+	fileContent := "01234567890123456789012345678901234567890123456789"
+	fileSize := fmt.Sprintf("%d", len(fileContent))
+
+	prepBody, prepCT := multipartFields(t, map[string]string{
+		"name": "progress_test.txt",
+		"size": fileSize,
+	})
+	resp, err := http.Post(ts.URL+"/upload/", prepCT, prepBody)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("prepare failed: %d", resp.StatusCode)
+	}
+
+	sseClient := ts.Client()
+	progressReq, err := http.NewRequest("GET", ts.URL+"/progress/progress_test.txt", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sseResp, err := sseClient.Do(progressReq)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		_ = sseResp.Body.Close()
+	}()
+
+	if sseResp.StatusCode != http.StatusOK {
+		t.Fatalf("progress failed: %d", sseResp.StatusCode)
+	}
+
+	go func() {
+		time.Sleep(50 * time.Millisecond)
+		patchReq, _ := http.NewRequest("PATCH", ts.URL+"/upload/progress_test.txt", strings.NewReader(fileContent))
+		patchReq.Header.Set("Content-Length", fileSize)
+		patchReq.Header.Set("Content-Type", "application/octet-stream")
+		patchResp, err := http.DefaultClient.Do(patchReq)
+		if err == nil {
+			_ = patchResp.Body.Close()
+		}
+	}()
+
+	buf := make([]byte, 1024)
+	n, _ := io.ReadAtLeast(sseResp.Body, buf, 1)
+	sseOutput := string(buf[:n])
+
+	if !strings.Contains(sseOutput, "bytesWritten") || !strings.Contains(sseOutput, "totalBytes") {
+		t.Fatalf("expected SSE output to contain bytesWritten and totalBytes, got: %s", sseOutput)
 	}
 }

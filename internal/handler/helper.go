@@ -28,9 +28,8 @@ func sendError(w http.ResponseWriter, status int, msg string) {
 
 type progressWriter struct {
 	totalWritten int64
-	totalSize    int64
 	targetWriter io.Writer
-	onProgress   func(written int64, total int64)
+	onProgress   func(written int64)
 }
 
 func (pw *progressWriter) Write(p []byte) (int, error) {
@@ -40,6 +39,6 @@ func (pw *progressWriter) Write(p []byte) (int, error) {
 	}
 
 	pw.totalWritten += int64(n)
-	pw.onProgress(pw.totalWritten, pw.totalSize)
+	pw.onProgress(pw.totalWritten)
 	return n, nil
 }

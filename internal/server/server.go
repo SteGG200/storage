@@ -28,7 +28,9 @@ func NewServer(cfg Config) (*http.Server, error) {
 	mux.HandleFunc("POST /src/{path...}", h.PostSrc)
 	mux.HandleFunc("PUT /src/{path...}", h.PutSrc)
 	mux.HandleFunc("DELETE /src/{path...}", h.DeleteSrc)
-	mux.HandleFunc("POST /upload/{path...}", h.UploadFile)
+	mux.HandleFunc("POST /upload/{path...}", h.PrepareUpload)
+	mux.HandleFunc("PATCH /upload/{path...}", h.StreamUpload)
+	mux.HandleFunc("GET /progress/{path...}", h.UploadProgress)
 	mux.HandleFunc("GET /download/{path...}", h.DownloadFile)
 
 	// Chain middlewares

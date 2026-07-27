@@ -13,6 +13,7 @@ import (
 type Handler struct {
 	StorageRoot string
 	Locks       *locks.PathLocks
+	uploadStore *uploadProgressStore
 }
 
 // NewHandler initializes a Handler.
@@ -24,6 +25,7 @@ func NewHandler(storageRoot string) (*Handler, error) {
 	return &Handler{
 		StorageRoot: absRoot,
 		Locks:       &locks.PathLocks{},
+		uploadStore: &uploadProgressStore{},
 	}, nil
 }
 
