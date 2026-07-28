@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/SteGG200/storage/internal/fsutil"
 )
@@ -106,6 +107,20 @@ func (h *Handler) PrepareUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var modTime *time.Time
+	modTimeStr := r.FormValue("modifiedAt")
+	if modTimeStr != "" {
+		parsedTime, err := time.Parse(time.RFC3339, modTimeStr)
+		if err != nil {
+			parsedTime, err = time.Parse(time.RFC3339Nano, modTimeStr)
+		}
+		if err != nil {
+			sendError(w, http.StatusBadRequest, "invalid ISO 8601 modifiedAt timestamp format")
+			return
+		}
+		modTime = &parsedTime
+	}
+
 	if err := fsutil.ValidateName(name); err != nil {
 		sendError(w, http.StatusBadRequest, err.Error())
 		return
@@ -127,7 +142,7 @@ func (h *Handler) PrepareUpload(w http.ResponseWriter, r *http.Request) {
 	unlock()
 
 	filePath := filepath.Join(targetPath, name)
-	h.uploadStore.Register(filePath, tempFile.Name(), size)
+	h.uploadStore.Register(filePath, tempFile.Name(), size, modTime)
 
 	sendJSON(w, http.StatusOK, map[string]string{"status": "oke"})
 }
@@ -214,6 +229,11 @@ func (h *Handler) StreamUpload(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		sendError(w, http.StatusInternalServerError, "error moving file to target location")
 		return
+	}
+
+	if tracker.modTime != nil {
+		//#nosec G703
+		_ = os.Chtimes(filePath, *tracker.modTime, *tracker.modTime)
 	}
 
 	sendJSON(w, http.StatusOK, map[string]string{"status": "oke"})

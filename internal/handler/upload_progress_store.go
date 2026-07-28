@@ -3,6 +3,7 @@ package handler
 import (
 	"os"
 	"sync"
+	"time"
 )
 
 // progressTracker broadcasts upload progress to multiple SSE subscribers.
@@ -11,17 +12,19 @@ type progressTracker struct {
 	subscribers map[chan int64]struct{}
 	current     int64
 	totalSize   int64
+	modTime     *time.Time
 	closed      bool
 	tempPath    string
 	cleanupOnce sync.Once
 	cleanupFunc func()
 }
 
-func newProgressTracker(tempPath string, totalSize int64) *progressTracker {
+func newProgressTracker(tempPath string, totalSize int64, modTime *time.Time) *progressTracker {
 	return &progressTracker{
 		subscribers: make(map[chan int64]struct{}),
 		tempPath:    tempPath,
 		totalSize:   totalSize,
+		modTime:     modTime,
 	}
 }
 
@@ -107,8 +110,8 @@ type uploadProgressStore struct {
 	store sync.Map
 }
 
-func (s *uploadProgressStore) Register(path, tempPath string, totalSize int64) *progressTracker {
-	t := newProgressTracker(tempPath, totalSize)
+func (s *uploadProgressStore) Register(path, tempPath string, totalSize int64, modTime *time.Time) *progressTracker {
+	t := newProgressTracker(tempPath, totalSize, modTime)
 	t.cleanupFunc = func() {
 		s.store.Delete(path)
 	}

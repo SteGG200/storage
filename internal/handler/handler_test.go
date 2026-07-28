@@ -360,6 +360,20 @@ func TestPrepareUpload(t *testing.T) {
 	if rr.Code != http.StatusRequestEntityTooLarge {
 		t.Fatalf("expected status 413 for size > 10GB, got: %d", rr.Code)
 	}
+
+	// Test invalid modifiedAt
+	body6, contentType6 := multipartFields(t, map[string]string{
+		"name":       "invalid_date.txt",
+		"size":       "10",
+		"modifiedAt": "not-a-date",
+	})
+	req = httptest.NewRequest("POST", "/upload/", body6)
+	req.Header.Set("Content-Type", contentType6)
+	rr = httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400 for invalid modifiedAt, got: %d", rr.Code)
+	}
 }
 
 func TestStreamUpload(t *testing.T) {
@@ -399,6 +413,52 @@ func TestStreamUpload(t *testing.T) {
 	}
 	if string(diskData) != fileContent {
 		t.Fatalf("expected content %q, got %q", fileContent, string(diskData))
+	}
+}
+
+func TestStreamUploadWithModifiedAt(t *testing.T) {
+	tmp := t.TempDir()
+	app := setupTestHandler(t, tmp)
+
+	fileContent := "hello modified timestamp"
+	fileSize := fmt.Sprintf("%d", len(fileContent))
+	customTimeStr := "2026-07-28T10:00:00Z"
+	expectedTime, err := time.Parse(time.RFC3339, customTimeStr)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	prepBody, prepCT := multipartFields(t, map[string]string{
+		"name":       "mod_test.txt",
+		"size":       fileSize,
+		"modifiedAt": customTimeStr,
+	})
+	req := httptest.NewRequest("POST", "/upload/", prepBody)
+	req.Header.Set("Content-Type", prepCT)
+	rr := httptest.NewRecorder()
+	app.ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("prepare failed, status: %d", rr.Code)
+	}
+
+	patchReq := httptest.NewRequest("PATCH", "/upload/mod_test.txt", strings.NewReader(fileContent))
+	patchReq.Header.Set("Content-Length", fileSize)
+	patchReq.Header.Set("Content-Type", "application/octet-stream")
+	patchRr := httptest.NewRecorder()
+	app.ServeHTTP(patchRr, patchReq)
+
+	if patchRr.Code != http.StatusOK {
+		t.Fatalf("stream upload failed, status: %d, body: %s", patchRr.Code, patchRr.Body.String())
+	}
+
+	diskPath := filepath.Join(tmp, "mod_test.txt")
+	fi, err := os.Stat(diskPath)
+	if err != nil {
+		t.Fatalf("file not found on disk: %v", err)
+	}
+
+	if !fi.ModTime().Equal(expectedTime) {
+		t.Fatalf("expected modTime %v, got %v", expectedTime, fi.ModTime())
 	}
 }
 
