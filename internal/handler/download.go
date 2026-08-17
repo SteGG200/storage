@@ -10,6 +10,7 @@ import (
 // DownloadFile handles GET /download/{path...}.
 func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 	relPath := r.PathValue("path")
+	preview := r.URL.Query().Get("preview")
 	if relPath == "" {
 		sendError(w, http.StatusBadRequest, "path cannot be empty")
 		return
@@ -42,7 +43,10 @@ func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Content-Disposition", "attachment; filename=\""+fi.Name()+"\"")
+	if preview != "true" {
+		w.Header().Add("Content-Disposition", "attachment; filename=\""+fi.Name()+"\"")
+		w.Header().Add("Cache-Control", "no-store, no-cache, must-revalidate")
+	}
 
 	// Serve target file
 	http.ServeFile(w, r, targetPath)
