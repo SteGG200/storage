@@ -15,6 +15,7 @@ type progressTracker struct {
 	modTime     *time.Time
 	closed      bool
 	tempPath    string
+	expireTimer *time.Timer
 	cleanupOnce sync.Once
 	cleanupFunc func()
 }
@@ -115,6 +116,9 @@ func (s *uploadProgressStore) Register(path, tempPath string, totalSize int64, m
 	t.cleanupFunc = func() {
 		s.store.Delete(path)
 	}
+	t.expireTimer = time.AfterFunc(time.Hour, func() {
+		t.Cleanup()
+	})
 	s.store.Store(path, t)
 	return t
 }
@@ -137,5 +141,19 @@ func (s *uploadProgressStore) Tracker(path string) (*progressTracker, bool) {
 		return nil, false
 	}
 	tracker, ok := val.(*progressTracker)
+	if !ok {
+		return nil, false
+	}
+
+	tracker.mu.RLock()
+	isClosed := tracker.closed
+	tracker.mu.RUnlock()
+	if isClosed {
+		return nil, false
+	}
+
+	if tracker.expireTimer != nil {
+		_ = tracker.expireTimer.Stop()
+	}
 	return tracker, ok
 }

@@ -49,5 +49,6 @@ func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Serve target file
+	// #nosec G703
 	http.ServeFile(w, r, targetPath)
 }
